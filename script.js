@@ -1108,13 +1108,13 @@
 
     copyToClipboard() {
       const bioText = `khedr@dev:~$ whoami
-> Khedr mohammed — Full-Stack Web Developer & Software Engineer
+> Khedr Mohammed — Security Analyst | Backend Developer
 
 khedr@dev:~$ cat about.txt
 Computer Engineering graduate candidate with a dual focus on Cybersecurity/Network Analysis and Secure Backend Development. Proficient in vulnerability assessment, OWASP Top 10 mitigation, and network inspection using tools like Burp Suite, Nmap, and Metasploit. Experienced in designing scalable, secure backend systems and databases utilizing Python, FastAPI, PostgreSQL, Elasticsearch, and Docker, with a strong background in Zero-Knowledge architectures and authenticated cryptography (AES-256-GCM, Argon2id). Aimed at bridging analytical threat detection with secure-by-default software engineering.
 
 khedr@dev:~$ echo $PASSION
-> "Turning complex ideas into elegant, reliable digital experiences."`;
+> "Building resilient systems and writing code that is secure by default."`;
 
       const onSuccess = () => {
         if (this.copyText) this.copyText.textContent = 'Copied!';
