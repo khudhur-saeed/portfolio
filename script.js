@@ -1322,16 +1322,16 @@ khedr@dev:~$ echo $PASSION
 
   /* =========================================================================
      ProjectStackScrollController Component
-     Scroll-driven peel-up stacking cards effect:
-     Initially cards are stacked directly on top of each other.
-     As user scrolls, each top card slides/peels up to reveal the card beneath.
+     Scroll-driven Sticky Stacking Effect:
+     Cards stick at stepped offsets as the page scrolls naturally.
+     As succeeding cards overlap preceding cards, subtle scale-down and
+     brightness dimming are applied for physical depth.
      ========================================================================= */
   class ProjectStackScrollController {
-    constructor(selector = '.project-stack-item') {
+    constructor(selector = '.project-sticky-card-wrap') {
       this.items = Array.from(document.querySelectorAll(selector));
-      this.track = document.getElementById('projectsTrack');
-      this.dots = Array.from(document.querySelectorAll('.deck-step-dot'));
-      if (!this.items.length || !this.track) return;
+      this.container = document.getElementById('projectsStack');
+      if (!this.items.length || !this.container) return;
 
       this.reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (this.reduceMotion) return;
@@ -1351,9 +1351,9 @@ khedr@dev:~$ echo $PASSION
               this.requestUpdate();
             }
           });
-        }, { rootMargin: '100px 0px' });
+        }, { rootMargin: '200px 0px' });
 
-        this.observer.observe(this.track);
+        this.observer.observe(this.container);
       } else {
         this.isSectionVisible = true;
       }
@@ -1383,116 +1383,40 @@ khedr@dev:~$ echo $PASSION
 
     update() {
       this.ticking = false;
-      const trackRect = this.track.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      const totalScrollDist = trackRect.height - windowHeight;
+      const count = this.items.length;
+      if (count === 0) return;
 
-      if (totalScrollDist <= 0) return;
+      // Calculate overlap progress for each card based on following cards
+      for (let i = 0; i < count; i++) {
+        const card = this.items[i];
+        if (i === count - 1) {
+          // Last card is never covered by any card
+          card.style.transform = '';
+          card.style.filter = '';
+          continue;
+        }
 
-      // Scroll progress through the pinned track: 0.0 at top start, 1.0 at track exit
-      const rawProgress = -trackRect.top / totalScrollDist;
-      const progress = Math.max(0, Math.min(1, rawProgress));
+        let totalDepthProgress = 0;
 
-      const card0 = this.items[0];
-      const card1 = this.items[1];
-      const card2 = this.items[2];
+        for (let j = i + 1; j < count; j++) {
+          const nextCard = this.items[j];
+          const nextRect = nextCard.getBoundingClientRect();
+          const computedTop = parseFloat(window.getComputedStyle(nextCard).top) || 96;
 
-      if (!card0 || !card1 || !card2) return;
+          // Transition begins 320px before the next card settles into sticky position
+          const range = 320;
+          const distToSticky = nextRect.top - computedTop;
+          const overlapProgress = Math.max(0, Math.min(1, (range - distToSticky) / range));
 
-      // We have 3 cards, creating 2 peel transitions:
-      // Transition 1: progress 0.0 -> 0.48 (Card 0 peels up, Card 1 takes center stage)
-      // Transition 2: progress 0.52 -> 1.00 (Card 1 peels up, Card 2 takes center stage)
+          totalDepthProgress += overlapProgress * (j === i + 1 ? 1 : 0.6);
+        }
 
-      let activeIndex = 0;
+        const scale = Math.max(0.90, 1 - (totalDepthProgress * 0.05));
+        const brightness = Math.max(0.78, 1 - (totalDepthProgress * 0.14));
 
-      if (progress < 0.48) {
-        // --- PHASE 1: Card 0 peeling up ---
-        const p0 = Math.max(0, Math.min(1, progress / 0.44));
-
-        // Card 0 slides/peels up
-        const c0Y = - (p0 * 125);
-        const c0Scale = 1 - (p0 * 0.04);
-        const c0Opacity = 1 - (p0 * 0.4);
-        card0.style.transform = `translate3d(0, ${c0Y.toFixed(2)}%, 0) scale(${c0Scale.toFixed(4)})`;
-        card0.style.opacity = c0Opacity.toFixed(3);
-        card0.style.filter = 'brightness(1)';
-        card0.style.pointerEvents = p0 >= 0.85 ? 'none' : 'auto';
-
-        // Card 1 emerges to front from stack-top (-20px -> 0px)
-        const c1Y = -20 * (1 - p0);
-        const c1Scale = 0.96 + (0.04 * p0);
-        const c1Bright = 0.88 + (0.12 * p0);
-        const c1Opacity = 0.88 + (0.12 * p0);
-        card1.style.transform = `translate3d(0, ${c1Y.toFixed(1)}px, 0) scale(${c1Scale.toFixed(4)})`;
-        card1.style.opacity = c1Opacity.toFixed(3);
-        card1.style.filter = `brightness(${c1Bright.toFixed(3)})`;
-        card1.style.pointerEvents = p0 >= 0.85 ? 'auto' : 'none';
-
-        // Card 2 moves from top depth (-40px -> -20px)
-        const c2Y = -40 + (20 * p0);
-        const c2Scale = 0.92 + (0.04 * p0);
-        const c2Bright = 0.76 + (0.12 * p0);
-        const c2Opacity = 0.75 + (0.13 * p0);
-        card2.style.transform = `translate3d(0, ${c2Y.toFixed(1)}px, 0) scale(${c2Scale.toFixed(4)})`;
-        card2.style.opacity = c2Opacity.toFixed(3);
-        card2.style.filter = `brightness(${c2Bright.toFixed(3)})`;
-        card2.style.pointerEvents = 'none';
-
-        activeIndex = p0 < 0.5 ? 0 : 1;
-
-      } else if (progress < 0.52) {
-        // --- REST POINT 1: Card 1 fully active in front ---
-        card0.style.transform = 'translate3d(0, -130%, 0) scale(0.96)';
-        card0.style.opacity = '0.6';
-        card0.style.pointerEvents = 'none';
-
-        card1.style.transform = 'translate3d(0, 0px, 0) scale(1)';
-        card1.style.opacity = '1';
-        card1.style.filter = 'brightness(1)';
-        card1.style.pointerEvents = 'auto';
-
-        card2.style.transform = 'translate3d(0, -20px, 0) scale(0.96)';
-        card2.style.opacity = '0.88';
-        card2.style.filter = 'brightness(0.88)';
-        card2.style.pointerEvents = 'none';
-
-        activeIndex = 1;
-
-      } else {
-        // --- PHASE 2: Card 1 peeling up ---
-        const p1 = Math.max(0, Math.min(1, (progress - 0.52) / 0.44));
-
-        // Card 0 remains off-screen
-        card0.style.transform = 'translate3d(0, -135%, 0) scale(0.95)';
-        card0.style.opacity = '0';
-        card0.style.pointerEvents = 'none';
-
-        // Card 1 slides/peels up
-        const c1Y = - (p1 * 125);
-        const c1Scale = 1 - (p1 * 0.04);
-        const c1Opacity = 1 - (p1 * 0.4);
-        card1.style.transform = `translate3d(0, ${c1Y.toFixed(2)}%, 0) scale(${c1Scale.toFixed(4)})`;
-        card1.style.opacity = c1Opacity.toFixed(3);
-        card1.style.filter = 'brightness(1)';
-        card1.style.pointerEvents = p1 >= 0.85 ? 'none' : 'auto';
-
-        // Card 2 emerges to front from stack-top (-20px -> 0px)
-        const c2Y = -20 * (1 - p1);
-        const c2Scale = 0.96 + (0.04 * p1);
-        const c2Bright = 0.88 + (0.12 * p1);
-        const c2Opacity = 0.88 + (0.12 * p1);
-        card2.style.transform = `translate3d(0, ${c2Y.toFixed(1)}px, 0) scale(${c2Scale.toFixed(4)})`;
-        card2.style.opacity = c2Opacity.toFixed(3);
-        card2.style.filter = `brightness(${c2Bright.toFixed(3)})`;
-        card2.style.pointerEvents = p1 >= 0.85 ? 'auto' : 'none';
-
-        activeIndex = p1 < 0.5 ? 1 : 2;
+        card.style.transform = `scale(${scale.toFixed(4)})`;
+        card.style.filter = `brightness(${brightness.toFixed(3)})`;
       }
-
-      // Update indicator dots
-      this.dots.forEach((dot, idx) => {
-        dot.classList.toggle('active', idx === activeIndex);
-      });
     }
   }
 

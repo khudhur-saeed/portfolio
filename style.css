@@ -1329,165 +1329,63 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 
 
 /* =========================================================================
-   Featured Projects Section (Stacked Cards on Scroll)
+   Featured Projects Section (Sticky Stacking Effect)
    ========================================================================= */
 .projects-section {
   position: relative;
   width: 100%;
   margin: 0;
-  padding: 0;
+  padding: 6.5rem 1.5rem 8.5rem;
   scroll-margin-top: var(--nav-height);
   border-top: 1px solid var(--border-color);
+  background-color: var(--bg-color);
   overflow: visible;
   transition: var(--theme-transition);
 }
 
-/* Scroll Track gives the required scroll distance for the peel-reveal progression */
-.projects-scroll-track {
-  position: relative;
-  height: 280vh;
-  width: 100%;
-}
-
-/* Pinned Viewport Stage with Fixed Background */
-.projects-stage {
-  position: sticky;
-  top: var(--nav-height);
-  height: calc(100vh - var(--nav-height));
-  width: 100%;
-  background-color: var(--bg-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  padding: 1.25rem 1.5rem 1.75rem;
-  box-sizing: border-box;
-  transition: var(--theme-transition);
-}
-
-/* Fixed Cyber Grid Background inside the Pinned Stage */
-.stage-fixed-bg {
+/* Fixed Cyber Grid Background Pattern across the section */
+.projects-fixed-bg {
   position: absolute !important;
   inset: 0 !important;
   width: 100% !important;
   height: 100% !important;
   pointer-events: none;
-  z-index: 1;
-}
-
-/* Ambient Radial Glow behind the Deck */
-.stage-ambient-glow {
-  position: absolute;
-  top: 52%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 780px;
-  height: 520px;
-  background: radial-gradient(ellipse at center, rgba(171, 170, 173, 0.08) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 1;
-}
-
-[data-theme="light"] .stage-ambient-glow {
-  background: radial-gradient(ellipse at center, rgba(18, 18, 20, 0.05) 0%, transparent 70%);
+  z-index: 0;
+  background-attachment: fixed !important;
+  opacity: 0.35;
 }
 
 .projects-container {
   max-width: 1140px;
   width: 100%;
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* Sticky Stacking Cards Container */
+.projects-sticky-stack {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  position: relative;
-  z-index: 2;
-}
-
-.projects-stage-header {
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-.projects-stage-header .section-title {
-  margin-bottom: 0.25rem;
-  font-size: 2.1rem;
-}
-
-.projects-stage-header .section-subtitle {
-  font-size: 0.92rem;
-  margin-bottom: 0.5rem;
-  color: var(--text-primary);
-}
-
-/* Step Indicator Dots */
-.projects-deck-indicators {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.35rem;
-  padding: 0.3rem 0.85rem;
-  background: rgba(171, 170, 173, 0.08);
-  border: 1px solid var(--border-color);
-  border-radius: 9999px;
-}
-
-.deck-step-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 9999px;
-  background: var(--text-primary);
-  opacity: 0.35;
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.deck-step-dot.active {
-  width: 22px;
-  background: var(--text-highlight);
-  opacity: 1;
-}
-
-/* Stacking Cards Deck - DaisyUI stack & stack-top structure */
-.projects-stack-deck.stack {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: 1fr;
   width: 100%;
   max-width: 1100px;
+  margin: 3rem auto 0;
   position: relative;
-  perspective: 1200px;
-  padding-top: 46px; /* Room for back cards peeking out at the top */
 }
 
-/* Individual Card in the Deck */
-.project-stack-item {
-  grid-column: 1;
-  grid-row: 1;
-  width: 100%;
+/* Each Sticky Card Wrapper sticks at a stepped top offset */
+.project-sticky-card-wrap {
+  position: sticky;
+  top: calc(var(--nav-height) + 1.5rem + (var(--card-index, 0) * 2.25rem));
+  z-index: calc(10 + var(--card-index, 0));
+  margin-bottom: 5.5rem;
   transform-origin: center top;
-  will-change: transform, opacity, filter;
-  transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, filter;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* stack-top: Cards behind peek out from the TOP (DaisyUI stack-top) */
-.projects-stack-deck.stack.stack-top .project-stack-item[data-index="0"] {
-  transform: translate3d(0, 0px, 0) scale(1);
-  filter: brightness(1);
-  opacity: 1;
-  z-index: 3;
-}
-
-.projects-stack-deck.stack.stack-top .project-stack-item[data-index="1"] {
-  transform: translate3d(0, -20px, 0) scale(0.96);
-  filter: brightness(0.88);
-  opacity: 0.88;
-  z-index: 2;
-}
-
-.projects-stack-deck.stack.stack-top .project-stack-item[data-index="2"] {
-  transform: translate3d(0, -40px, 0) scale(0.92);
-  filter: brightness(0.76);
-  opacity: 0.75;
-  z-index: 1;
+.project-sticky-card-wrap:last-child {
+  margin-bottom: 2rem;
 }
 
 .project-card {
@@ -1788,28 +1686,22 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 
 /* Responsive Queries for Project Cards */
 @media (max-width: 992px) {
-  .projects-stage {
-    padding: 1rem 1rem 1.25rem;
-    height: calc(100vh - var(--nav-height));
+  .projects-section {
+    padding: 5rem 1rem 6rem;
   }
 
-  .projects-stage-header {
-    margin-bottom: 0.75rem;
+  .projects-sticky-stack {
+    margin-top: 2rem;
   }
 
-  .projects-stage-header .section-title {
-    font-size: 1.6rem;
-  }
-
-  .projects-stage-header .section-subtitle {
-    display: none;
+  .project-sticky-card-wrap {
+    top: calc(var(--nav-height) + 1rem + (var(--card-index, 0) * 1.5rem));
+    margin-bottom: 3.5rem;
   }
 
   .project-grid {
     grid-template-columns: 1fr;
     min-height: auto;
-    max-height: calc(100vh - var(--nav-height) - 120px);
-    overflow-y: auto;
   }
 
   .project-media-col {
