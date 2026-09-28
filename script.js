@@ -1149,6 +1149,177 @@ khedr@dev:~$ echo $PASSION
     }
   }
 
+  /* =========================================================================
+     AnimatedContent Component (React Bits Inspired)
+     Smooth scroll-triggered entrance with distance, scale, and staggered delay
+     ========================================================================= */
+  class AnimatedContentController {
+    constructor(selector = '.skill-category-card', options = {}) {
+      this.elements = Array.from(document.querySelectorAll(selector));
+      if (!this.elements.length) return;
+
+      this.options = Object.assign({
+        threshold: 0.12,
+        staggerDelay: 85, // ms between consecutive cards
+        initialDelay: 100 // ms before sequence starts
+      }, options);
+
+      this.reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      this.init();
+    }
+
+    init() {
+      if (this.reduceMotion) {
+        this.elements.forEach(el => el.classList.add('is-animated'));
+        return;
+      }
+
+      if ('IntersectionObserver' in window) {
+        let triggered = false;
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting && !triggered) {
+              triggered = true;
+              this.animateSequence();
+              observer.disconnect();
+            }
+          });
+        }, {
+          threshold: this.options.threshold,
+          rootMargin: '0px 0px -40px 0px'
+        });
+
+        const grid = document.querySelector('.skills-grid');
+        if (grid) {
+          observer.observe(grid);
+        } else {
+          this.elements.forEach(el => observer.observe(el));
+        }
+      } else {
+        this.animateSequence();
+      }
+    }
+
+    animateSequence() {
+      this.elements.forEach((el, index) => {
+        const delay = this.options.initialDelay + index * this.options.staggerDelay;
+        el.style.transitionDelay = `${delay}ms`;
+
+        requestAnimationFrame(() => {
+          el.classList.add('is-animated');
+        });
+
+        // Clear transition-delay after animation finishes so hover effects remain snappy and immediate
+        setTimeout(() => {
+          el.style.transitionDelay = '';
+        }, delay + 800);
+      });
+    }
+  }
+
+  /* =========================================================================
+     SpecularCardController Component (React Bits Inspired)
+     Dynamic cursor-following specular border highlight across all cards
+     ========================================================================= */
+  class SpecularCardController {
+    constructor(selector = '.specular-card', options = {}) {
+      this.cards = Array.from(document.querySelectorAll(selector));
+      if (!this.cards.length) return;
+
+      this.options = Object.assign({
+        proximity: 320, // distance in pixels where shine fades in
+        maxIntensity: 1.0
+      }, options);
+
+      this.reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      this.hoverCapable = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+      this.visibleCards = new Set();
+      this.running = false;
+      this.pointer = { x: -9999, y: -9999 };
+
+      this.init();
+    }
+
+    init() {
+      if (this.reduceMotion || !this.hoverCapable) return;
+
+      this.setupIntersectionObserver();
+      this.bindEvents();
+    }
+
+    setupIntersectionObserver() {
+      if ('IntersectionObserver' in window) {
+        this.observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              this.visibleCards.add(entry.target);
+            } else {
+              this.visibleCards.delete(entry.target);
+              entry.target.style.setProperty('--spec-opacity', '0');
+            }
+          });
+        }, { threshold: 0.05, rootMargin: '100px' });
+
+        this.cards.forEach(card => this.observer.observe(card));
+      } else {
+        this.cards.forEach(card => this.visibleCards.add(card));
+      }
+    }
+
+    bindEvents() {
+      window.addEventListener('pointermove', (e) => {
+        this.pointer.x = e.clientX;
+        this.pointer.y = e.clientY;
+
+        if (!this.running) {
+          this.running = true;
+          requestAnimationFrame(() => this.update());
+        }
+      }, { passive: true });
+
+      window.addEventListener('pointerleave', () => {
+        this.visibleCards.forEach(card => {
+          card.style.setProperty('--spec-opacity', '0');
+        });
+      });
+    }
+
+    update() {
+      this.running = false;
+      const px = this.pointer.x;
+      const py = this.pointer.y;
+      const prox = this.options.proximity;
+
+      this.visibleCards.forEach(card => {
+        const rect = card.getBoundingClientRect();
+
+        // Distance from cursor to nearest point on the card's bounding box
+        const dx = Math.max(rect.left - px, 0, px - rect.right);
+        const dy = Math.max(rect.top - py, 0, py - rect.bottom);
+        const dist = Math.hypot(dx, dy);
+
+        if (dist <= prox) {
+          // Smooth Hermite proximity curve (identical to SpecularButton)
+          const t = Math.max(0, 1 - dist / prox);
+          const proximityT = t * t * (3 - 2 * t);
+
+          const relX = px - rect.left;
+          const relY = py - rect.top;
+
+          card.style.setProperty('--spec-x', `${relX.toFixed(1)}px`);
+          card.style.setProperty('--spec-y', `${relY.toFixed(1)}px`);
+          card.style.setProperty('--spec-opacity', proximityT.toFixed(3));
+          card.style.setProperty('--spec-intensity', (proximityT * this.options.maxIntensity).toFixed(3));
+        } else {
+          if (card.style.getPropertyValue('--spec-opacity') !== '0') {
+            card.style.setProperty('--spec-opacity', '0');
+          }
+        }
+      });
+    }
+  }
+
   // App Initialization on DOM Ready
   document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -1203,5 +1374,11 @@ khedr@dev:~$ echo $PASSION
     if (terminalEl) {
       new TerminalAnimationController(terminalEl);
     }
+
+    // 6. Initialize AnimatedContent on Skill Category Cards (React Bits)
+    new AnimatedContentController('.skill-category-card');
+
+    // 7. Initialize Specular Effect across all Cards (React Bits SpecularButton adaptation)
+    new SpecularCardController('.specular-card');
   });
 })();

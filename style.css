@@ -1081,6 +1081,252 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   }
 }
 
+/* ==========================================================================
+   Technical Skills Section
+   ========================================================================== */
+
+.skills-section {
+  position: relative;
+  padding: 7rem 1.5rem 8rem;
+  background-color: var(--bg-color);
+  border-top: 1px solid var(--border-color);
+  transition: var(--theme-transition);
+  overflow: hidden;
+}
+
+.skills-container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 3.5rem;
+}
+
+@media (max-width: 1040px) {
+  .skills-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 720px) {
+  .skills-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.skill-category-card {
+  background: rgba(24, 24, 28, 0.65);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 1.85rem 2rem;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+  display: flex;
+  flex-direction: column;
+
+  /* React Bits: AnimatedContent Initial State */
+  opacity: 0;
+  transform: translateY(45px) scale(0.96);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s ease,
+              box-shadow 0.25s ease,
+              var(--theme-transition);
+  will-change: opacity, transform;
+}
+
+/* React Bits: AnimatedContent Entrance Triggered */
+.skill-category-card.is-animated {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+[data-theme="light"] .skill-category-card {
+  background: rgba(215, 214, 218, 0.7);
+  box-shadow: 0 10px 25px rgba(18, 18, 20, 0.08);
+}
+
+.skill-category-card.is-animated:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-3px) scale(1);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.38);
+}
+
+.skill-card-wide {
+  grid-column: 1 / -1;
+}
+
+/* ==========================================================================
+   React Bits Specular Highlight Effect (Specular Cards)
+   Edge-hugging specular rim highlight driven by mouse proximity & position
+   ========================================================================== */
+
+.specular-card {
+  position: relative;
+  isolation: isolate;
+}
+
+/* Moving Specular Border Rim Highlight */
+.specular-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: radial-gradient(
+    380px circle at var(--spec-x, -999px) var(--spec-y, -999px),
+    rgba(255, 255, 255, calc(var(--spec-intensity, 0) * 0.95)) 0%,
+    rgba(171, 170, 173, calc(var(--spec-intensity, 0) * 0.4)) 35%,
+    transparent 75%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: var(--spec-opacity, 0);
+  transition: opacity 0.25s ease;
+  z-index: 5;
+}
+
+[data-theme="light"] .specular-card::before {
+  background: radial-gradient(
+    380px circle at var(--spec-x, -999px) var(--spec-y, -999px),
+    rgba(18, 18, 20, calc(var(--spec-intensity, 0) * 0.75)) 0%,
+    rgba(80, 80, 85, calc(var(--spec-intensity, 0) * 0.3)) 35%,
+    transparent 75%
+  );
+}
+
+/* Moving Specular Ambient Glow inside the Card */
+.specular-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    480px circle at var(--spec-x, -999px) var(--spec-y, -999px),
+    rgba(255, 255, 255, calc(var(--spec-intensity, 0) * 0.045)) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  opacity: var(--spec-opacity, 0);
+  transition: opacity 0.25s ease;
+  z-index: 1;
+}
+
+[data-theme="light"] .specular-card::after {
+  background: radial-gradient(
+    480px circle at var(--spec-x, -999px) var(--spec-y, -999px),
+    rgba(18, 18, 20, calc(var(--spec-intensity, 0) * 0.035)) 0%,
+    transparent 70%
+  );
+}
+
+.specular-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 1.35rem;
+  padding-bottom: 0.95rem;
+  border-bottom: 1px solid rgba(171, 170, 173, 0.12);
+}
+
+[data-theme="light"] .category-header {
+  border-bottom-color: rgba(18, 18, 20, 0.1);
+}
+
+.cat-icon {
+  font-size: 1.15rem;
+  color: #4ade80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.25);
+  flex-shrink: 0;
+}
+
+.cat-title {
+  font-family: var(--font-sans);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-highlight);
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+/* Floating Chip Component */
+.floating-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 1rem;
+  border-radius: 9999px;
+  background: rgba(24, 24, 28, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--text-highlight);
+  transition: var(--theme-transition), border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  user-select: none;
+  cursor: default;
+}
+
+[data-theme="light"] .floating-chip {
+  background: rgba(230, 229, 232, 0.85);
+  box-shadow: 0 4px 12px rgba(18, 18, 20, 0.08);
+}
+
+.floating-chip:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.32);
+  color: var(--text-highlight);
+}
+
+.floating-chip code {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background: transparent;
+}
+
+.chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.8);
+  flex-shrink: 0;
+}
+
 @media (max-width: 768px) {
   :root {
     --pullcord-right: 1.5rem;
@@ -1130,5 +1376,11 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 
   .pc-behind {
     display: none;
+  }
+
+  .skill-category-card {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 }
