@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Software Engineer & Web Developer Portfolio featuring seamless projects, skills, and interactive experiences.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- =========================================================================
+       Fixed Top Navigation Bar with Continuous Marquee Effect
+       ========================================================================= -->
+  <header class="navbar-header" id="navbar">
+    <nav class="navbar" aria-label="Main Navigation">
+      <div class="marquee-wrapper">
+        <div class="marquee-track" id="marqueeTrack">
+          
+          <!-- Primary Group (Accessible to Screen Readers) -->
+          <div class="marquee-group">
+            <a href="#hero" class="nav-link" id="nav-home-1">Home</a>
+            <span class="separator-dot" aria-hidden="true"></span>
+            <a href="#about" class="nav-link" id="nav-about-1">About</a>
+            <span class="separator-dot" aria-hidden="true"></span>
+            <a href="#projects" class="nav-link" id="nav-projects-1">Projects</a>
+            <span class="separator-dot" aria-hidden="true"></span>
+            <a href="#skills" class="nav-link" id="nav-skills-1">Skills</a>
+            <span class="separator-dot" aria-hidden="true"></span>
+            <a href="#contact" class="nav-link" id="nav-contact-1">Contact</a>
+            <span class="separator-dot" aria-hidden="true"></span>
+            <a href="#hero" class="nav-link" id="nav-home-2">Home</a>
+            <span class="separator-dot" aria-hidden="true"></span>
+            <a href="#about" class="nav-link" id="nav-about-2">About</a>
+            <span class="separator-dot" aria-hidden="true"></span>
+            <a href="#projects" class="nav-link" id="nav-projects-2">Projects</a>
+            <span class="separator-dot" aria-hidden="true"></span>
+            <a href="#skills" class="nav-link" id="nav-skills-2">Skills</a>
+            <span class="separator-dot" aria-hidden="true"></span>
+            <a href="#contact" class="nav-link" id="nav-contact-2">Contact</a>
+            <span class="separator-dot" aria-hidden="true"></span>
+          </div>
+
+          <!-- Duplicate Group for Seamless Looping (Hidden from Screen Readers) -->
+          <div class="marquee-group" aria-hidden="true">
+            <a href="#hero" class="nav-link" tabindex="-1">Home</a>
+            <span class="separator-dot"></span>
+            <a href="#about" class="nav-link" tabindex="-1">About</a>
+            <span class="separator-dot"></span>
+            <a href="#projects" class="nav-link" tabindex="-1">Projects</a>
+            <span class="separator-dot"></span>
+            <a href="#skills" class="nav-link" tabindex="-1">Skills</a>
+            <span class="separator-dot"></span>
+            <a href="#contact" class="nav-link" tabindex="-1">Contact</a>
+            <span class="separator-dot"></span>
+            <a href="#hero" class="nav-link" tabindex="-1">Home</a>
+            <span class="separator-dot"></span>
+            <a href="#about" class="nav-link" tabindex="-1">About</a>
+            <span class="separator-dot"></span>
+            <a href="#projects" class="nav-link" tabindex="-1">Projects</a>
+            <span class="separator-dot"></span>
+            <a href="#skills" class="nav-link" tabindex="-1">Skills</a>
+            <span class="separator-dot"></span>
+            <a href="#contact" class="nav-link" tabindex="-1">Contact</a>
+            <span class="separator-dot"></span>
+          </div>
+
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- =========================================================================
+       PullCord Physics-driven Ceiling Rope Switch (Theme Switcher)
+       Inspired by mortspace / FeralUI
+       ========================================================================= -->
+  <div class="pullcord" id="pullcord">
+    <div class="pullcord-inner pullcord-inner--drop">
+      <svg class="pullcord-svg" viewBox="0 0 64 340" width="64" height="340" aria-hidden="true">
+        <defs>
+          <linearGradient id="pc-knob" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ffffff" />
+            <stop offset="100%" stop-color="#abaaad" />
+          </linearGradient>
+          <filter id="pc-knob-sh" x="-70%" y="-70%" width="240%" height="240%">
+            <feDropShadow dx="0" dy="1.4" stdDeviation="1.5" flood-color="rgba(0,0,0,0.35)" />
+          </filter>
+        </defs>
+        <!-- Dynamic Verlet rope path -->
+        <path class="pullcord-path" d="M 32.0 0.0 Q 32.0 11.0 32.0 22.0 L 32.0 176.0" />
+        <!-- Knob SVG visual group -->
+        <g class="pullcord-knob-group">
+          <g filter="url(#pc-knob-sh)">
+            <circle cx="32" cy="176" r="6.5" fill="url(#pc-knob)" stroke="rgba(0,0,0,0.15)" stroke-width="0.5" />
+          </g>
+        </g>
+      </svg>
+      <!-- Interactive grab & pull knob button for screen readers & touch/mouse interaction -->
+      <button type="button" class="pullcord-knob-btn" aria-label="Pull the cord to toggle theme" aria-pressed="false" title="Pull cord to toggle light/dark theme"></button>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Main Content Area
+       ========================================================================= -->
+  <main class="main-content" id="mainContent">
+    
+    <!-- Hero Section -->
+    <section class="hero-section" id="hero">
+      
+      <!-- LetterGlitch Background (50% Opacity) -->
+      <div class="glitch-bg-container" id="glitchBg" aria-hidden="true">
+        <canvas class="glitch-bg-canvas" id="glitchCanvas"></canvas>
+        <div class="glitch-outer-vignette"></div>
+      </div>
+
+      <div class="hero-container">
+        
+        <!-- Left: Name & Welcome Message -->
+        <div class="hero-intro" id="heroIntro">
+          <div class="hero-badge">
+            <span class="status-pulse"></span>
+            <span>Available for new opportunities</span>
+          </div>
+
+          <h1 class="hero-title">
+            Hi, I'm <span class="gradient-text">Khedr</span>
+          </h1>
+
+          <p class="hero-welcome">
+            Welcome to my personal portfolio. I specialize in building robust, intuitive web applications and crafting memorable digital experiences with modern web technologies.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#projects" class="btn btn-primary">View Projects</a>
+            <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+          </div>
+        </div>
+
+        <!-- Right: ProfileCard Component (React Bits) with Uploaded Photo -->
+        <div class="hero-profile">
+          <div class="pc-card-wrapper" id="profileCard">
+            <!-- Glow effect following pointer behind the card -->
+            <div class="pc-behind"></div>
+
+            <div class="pc-card-shell">
+              <section class="pc-card">
+                <div class="pc-inside">
+                  
+                  <!-- Glass glare reflection -->
+                  <div class="pc-glare"></div>
+
+                  <!-- Avatar Image Content (1:1 Ratio Matched to Photo) -->
+                  <div class="pc-avatar-content">
+                    <img 
+                      class="avatar" 
+                      src="assets/user_photo.jpg" 
+                      alt="Khedr Portrait Photo" 
+                      loading="eager"
+                    />
+
+                    <!-- Frosted glass user details banner -->
+                    <div class="pc-user-info">
+                      <div class="pc-user-details">
+                        <div class="pc-mini-avatar">
+                          <img src="assets/user_photo.jpg" alt="Mini Avatar" />
+                        </div>
+                        <div class="pc-user-text">
+                          <div class="pc-handle">@khedr</div>
+                          <div class="pc-status">Available</div>
+                        </div>
+                      </div>
+                      <a href="#contact" class="pc-contact-btn">Contact</a>
+                    </div>
+                  </div>
+
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         About Section: Parallax Layers + Magic UI Interactive Terminal
+         ======================================================================= -->
+    <section class="about-section" id="about">
+      <div class="parallax-container" id="aboutParallax">
+        
+        <!-- Parallax Layer 1 (Depth 0.15): Ambient Glow & Cyber Grid -->
+        <div class="parallax-layer" data-depth="0.15" aria-hidden="true">
+          <div class="about-ambient-glow"></div>
+          <div class="about-grid-pattern"></div>
+        </div>
+
+        <!-- Main Layer: Section Header + Terminal Wrapper -->
+        <div class="parallax-main-layer">
+          <div class="about-container">
+            
+            <!-- Section Header -->
+            <div class="section-header">
+              <div class="section-tag">
+                <span class="tag-icon">⌘</span>
+                <span>SYSTEM_IDENTITY // ABOUT</span>
+              </div>
+              <h2 class="section-title">Behind The Architecture</h2>
+              <p class="section-subtitle">Bridging analytical threat detection with secure-by-default software engineering.</p>
+            </div>
+
+            <!-- Terminal Wrapper with Organically Scattered Parallax Chips -->
+            <div class="terminal-wrapper" id="terminalWrapper">
+
+              <!-- Chip 1 (Upper Left): AES-256-GCM -->
+              <div class="chip-anchor chip-pos-1" data-depth="0.28" aria-hidden="true">
+                <div class="floating-chip chip-anim-1">
+                  <span class="chip-dot"></span>
+                  <code>AES-256-GCM</code>
+                </div>
+              </div>
+
+              <!-- Chip 2 (Upper Right): Zero-Knowledge -->
+              <div class="chip-anchor chip-pos-2" data-depth="0.45" aria-hidden="true">
+                <div class="floating-chip chip-anim-2">
+                  <span class="chip-dot"></span>
+                  <code>Zero-Knowledge</code>
+                </div>
+              </div>
+
+              <!-- Chip 3 (Mid Left): OWASP Top 10 -->
+              <div class="chip-anchor chip-pos-3" data-depth="0.36" aria-hidden="true">
+                <div class="floating-chip chip-anim-3">
+                  <span class="chip-dot"></span>
+                  <code>OWASP Top 10</code>
+                </div>
+              </div>
+
+              <!-- Chip 4 (Mid Right): FastAPI & Docker -->
+              <div class="chip-anchor chip-pos-4" data-depth="0.24" aria-hidden="true">
+                <div class="floating-chip chip-anim-4">
+                  <span class="chip-dot"></span>
+                  <code>FastAPI &amp; Docker</code>
+                </div>
+              </div>
+
+              <!-- Chip 5 (Bottom Left): Network Analysis -->
+              <div class="chip-anchor chip-pos-5" data-depth="0.42" aria-hidden="true">
+                <div class="floating-chip chip-anim-5">
+                  <span class="chip-dot"></span>
+                  <code>Network Analysis</code>
+                </div>
+              </div>
+
+              <!-- Chip 6 (Bottom Right): Argon2id -->
+              <div class="chip-anchor chip-pos-6" data-depth="0.32" aria-hidden="true">
+                <div class="floating-chip chip-anim-6">
+                  <span class="chip-dot"></span>
+                  <code>Argon2id</code>
+                </div>
+              </div>
+
+              <!-- Magic UI Interactive Terminal Window -->
+              <div class="terminal-window" id="terminalWindow">
+                
+                <!-- Terminal Header Bar with Mac Dots & Quick Actions -->
+                <div class="terminal-header">
+                  <div class="terminal-dots" aria-hidden="true">
+                    <span class="dot dot-close"></span>
+                    <span class="dot dot-minimize"></span>
+                    <span class="dot dot-expand"></span>
+                  </div>
+                  <div class="terminal-title">khedr@dev:~ (bash)</div>
+                  <div class="terminal-actions">
+                    <button type="button" class="term-btn" id="termCopyBtn" title="Copy Output" aria-label="Copy terminal text">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                      <span id="termCopyText">Copy</span>
+                    </button>
+                    <button type="button" class="term-btn" id="termReplayBtn" title="Replay Animation" aria-label="Replay terminal typing animation">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                      <span>Replay</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Terminal Body Content -->
+                <div class="terminal-body" id="terminalBody">
+                  
+                  <!-- Command 1: whoami -->
+                  <div class="terminal-block" id="termBlock1">
+                    <div class="terminal-prompt-line">
+                      <span class="prompt-user">khedr@dev</span><span class="prompt-sep">:</span><span class="prompt-path">~</span><span class="prompt-dollar">$</span>
+                      <span class="typed-command" id="cmdWhoami"></span>
+                    </div>
+                    <div class="terminal-output" id="outWhoami">
+                      <span class="output-prefix">&gt;</span> <span class="highlight-name">Khedr mohammed</span> — Full-Stack Web Developer &amp; Software Engineer
+                    </div>
+                  </div>
+
+                  <!-- Command 2: cat about.txt -->
+                  <div class="terminal-block term-hidden" id="termBlock2">
+                    <div class="terminal-prompt-line">
+                      <span class="prompt-user">khedr@dev</span><span class="prompt-sep">:</span><span class="prompt-path">~</span><span class="prompt-dollar">$</span>
+                      <span class="typed-command" id="cmdCat"></span>
+                    </div>
+                    <div class="terminal-output terminal-bio-text" id="outCat">
+                      <p>
+                        Computer Engineering graduate candidate with a dual focus on 
+                        <span class="term-keyword">Cybersecurity/Network Analysis</span> and 
+                        <span class="term-keyword">Secure Backend Development</span>. Proficient in vulnerability assessment, 
+                        <span class="term-highlight">OWASP Top 10 mitigation</span>, and network inspection using tools like 
+                        <span class="term-code">Burp Suite</span>, <span class="term-code">Nmap</span>, and <span class="term-code">Metasploit</span>.
+                      </p>
+                      <p>
+                        Experienced in designing scalable, secure backend systems and databases utilizing 
+                        <span class="term-keyword">Python, FastAPI, PostgreSQL, Elasticsearch, and Docker</span>, 
+                        with a strong background in <span class="term-highlight">Zero-Knowledge architectures</span> and 
+                        authenticated cryptography (<span class="term-code">AES-256-GCM, Argon2id</span>). Aimed at bridging analytical threat detection with secure-by-default software engineering.
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Command 3: echo $PASSION -->
+                  <div class="terminal-block term-hidden" id="termBlock3">
+                    <div class="terminal-prompt-line">
+                      <span class="prompt-user">khedr@dev</span><span class="prompt-sep">:</span><span class="prompt-path">~</span><span class="prompt-dollar">$</span>
+                      <span class="typed-command" id="cmdEcho"></span>
+                    </div>
+                    <div class="terminal-output terminal-passion" id="outEcho">
+                      <span class="output-prefix">&gt;</span> <span class="passion-quote">"Turning complex ideas into elegant, reliable digital experiences."</span>
+                    </div>
+                  </div>
+
+                  <!-- Active prompt with blinking cursor -->
+                  <div class="terminal-prompt-line term-active-prompt term-hidden" id="termActivePrompt">
+                    <span class="prompt-user">khedr@dev</span><span class="prompt-sep">:</span><span class="prompt-path">~</span><span class="prompt-dollar">$</span>
+                    <span class="term-cursor" aria-hidden="true"></span>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
