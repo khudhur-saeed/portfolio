@@ -1326,6 +1326,7 @@ khedr@dev:~$ echo $PASSION
      Cards stick at stepped offsets as the page scrolls naturally.
      As succeeding cards overlap preceding cards, subtle scale-down and
      brightness dimming are applied for physical depth.
+     Optimized for mobile performance without layout thrashing.
      ========================================================================= */
   class ProjectStackScrollController {
     constructor(selector = '.project-sticky-card-wrap') {
@@ -1338,11 +1339,16 @@ khedr@dev:~$ echo $PASSION
 
       this.isSectionVisible = false;
       this.ticking = false;
+      this.stickyTops = [];
+      this.isMobile = false;
+      this.isShortViewport = false;
 
       this.init();
     }
 
     init() {
+      this.updateDimensions();
+
       if ('IntersectionObserver' in window) {
         this.observer = new IntersectionObserver((entries) => {
           entries.forEach(entry => {
@@ -1365,13 +1371,33 @@ khedr@dev:~$ echo $PASSION
       }, { passive: true });
 
       window.addEventListener('resize', () => {
+        this.updateDimensions();
         if (this.isSectionVisible) {
           this.requestUpdate();
         }
       }, { passive: true });
 
+      // Handle orientation changes on mobile devices
+      window.addEventListener('orientationchange', () => {
+        setTimeout(() => {
+          this.updateDimensions();
+          this.requestUpdate();
+        }, 150);
+      }, { passive: true });
+
       // Initial layout pass
       this.update();
+    }
+
+    updateDimensions() {
+      this.isMobile = window.innerWidth <= 768;
+      this.isShortViewport = window.innerHeight <= 560;
+
+      // Cache sticky tops once per resize to eliminate layout thrashing during scroll
+      this.stickyTops = this.items.map((card, i) => {
+        const topVal = parseFloat(window.getComputedStyle(card).top);
+        return isNaN(topVal) ? (72 + 24 + i * 36) : topVal;
+      });
     }
 
     requestUpdate() {
@@ -1385,6 +1411,22 @@ khedr@dev:~$ echo $PASSION
       this.ticking = false;
       const count = this.items.length;
       if (count === 0) return;
+
+      // In landscape mobile or very short viewports, cards scroll naturally without transform
+      if (this.isShortViewport) {
+        for (let i = 0; i < count; i++) {
+          this.items[i].style.transform = '';
+          this.items[i].style.filter = '';
+        }
+        return;
+      }
+
+      // Responsive depth tuning for silky-smooth rendering
+      const maxScaleFactor = this.isMobile ? 0.03 : 0.05;
+      const maxBrightFactor = this.isMobile ? 0.08 : 0.14;
+      const range = this.isMobile ? 240 : 320;
+      const minScale = this.isMobile ? 0.94 : 0.90;
+      const minBrightness = this.isMobile ? 0.85 : 0.78;
 
       // Calculate overlap progress for each card based on following cards
       for (let i = 0; i < count; i++) {
@@ -1401,18 +1443,17 @@ khedr@dev:~$ echo $PASSION
         for (let j = i + 1; j < count; j++) {
           const nextCard = this.items[j];
           const nextRect = nextCard.getBoundingClientRect();
-          const computedTop = parseFloat(window.getComputedStyle(nextCard).top) || 96;
+          const targetTop = this.stickyTops[j] || 96;
 
-          // Transition begins 320px before the next card settles into sticky position
-          const range = 320;
-          const distToSticky = nextRect.top - computedTop;
+          // Transition begins 'range' pixels before next card settles into sticky position
+          const distToSticky = nextRect.top - targetTop;
           const overlapProgress = Math.max(0, Math.min(1, (range - distToSticky) / range));
 
           totalDepthProgress += overlapProgress * (j === i + 1 ? 1 : 0.6);
         }
 
-        const scale = Math.max(0.90, 1 - (totalDepthProgress * 0.05));
-        const brightness = Math.max(0.78, 1 - (totalDepthProgress * 0.14));
+        const scale = Math.max(minScale, 1 - (totalDepthProgress * maxScaleFactor));
+        const brightness = Math.max(minBrightness, 1 - (totalDepthProgress * maxBrightFactor));
 
         card.style.transform = `scale(${scale.toFixed(4)})`;
         card.style.filter = `brightness(${brightness.toFixed(3)})`;

@@ -1339,8 +1339,13 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   scroll-margin-top: var(--nav-height);
   border-top: 1px solid var(--border-color);
   background-color: var(--bg-color);
-  overflow: visible;
+  /* overflow-x: clip ensures no horizontal scroll on mobile without breaking position:sticky */
+  overflow-x: clip;
+  overflow-y: visible;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
   transition: var(--theme-transition);
+  box-sizing: border-box;
 }
 
 /* Fixed Cyber Grid Background Pattern across the section */
@@ -1361,6 +1366,7 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   margin: 0 auto;
   position: relative;
   z-index: 1;
+  box-sizing: border-box;
 }
 
 /* Sticky Stacking Cards Container */
@@ -1371,6 +1377,7 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   max-width: 1100px;
   margin: 3rem auto 0;
   position: relative;
+  box-sizing: border-box;
 }
 
 /* Each Sticky Card Wrapper sticks at a stepped top offset */
@@ -1382,6 +1389,8 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   transform-origin: center top;
   will-change: transform, filter;
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .project-sticky-card-wrap:last-child {
@@ -1396,7 +1405,10 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   overflow: hidden;
   cursor: pointer;
   box-shadow: 0 -8px 25px -4px rgba(0, 0, 0, 0.45), 0 20px 45px -8px rgba(0, 0, 0, 0.65);
-  transition: border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s ease;
+  box-sizing: border-box;
+  width: 100%;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Full Card Click Overlay linking to the project web page */
@@ -1404,10 +1416,11 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   position: absolute;
   inset: 0;
   z-index: 5;
-  border-radius: 22px;
+  border-radius: inherit;
   display: block;
   text-indent: -9999px;
   overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
 }
 
 [data-theme="light"] .project-card {
@@ -1610,6 +1623,8 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   letter-spacing: -0.02em;
   margin: 0;
   transition: color 0.25s ease;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .project-description {
@@ -1617,6 +1632,7 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   line-height: 1.7;
   color: var(--text-primary);
   margin: 0;
+  overflow-wrap: break-word;
 }
 
 .project-chips-wrap {
@@ -1658,45 +1674,47 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 .project-action-link {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   font-size: 0.88rem;
   font-weight: 600;
   color: var(--text-highlight);
   text-decoration: none;
-  padding: 0.45rem 1rem;
-  border-radius: 8px;
+  /* Minimum 44x44px touch target (Apple HIG / WCAG 2.1 AAA) */
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0.55rem 1.15rem;
+  border-radius: 9px;
   background: rgba(171, 170, 173, 0.08);
   border: 1px solid var(--border-color);
   transition: all 0.25s ease;
-}
-
-.project-action-link:hover {
-  background: rgba(171, 170, 173, 0.18);
-  border-color: var(--border-hover);
-  color: var(--text-highlight);
-}
-
-.project-action-link:hover .action-icon-arrow {
-  transform: translateX(4px);
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .action-icon-arrow {
   transition: transform 0.25s ease;
+  flex-shrink: 0;
 }
 
-/* Responsive Queries for Project Cards */
+/* =========================================================================
+   Responsive Breakpoints & Mobile Optimization for Projects Section
+   ========================================================================= */
+
+/* 1. Tablets and Medium Screens (max-width: 992px) */
 @media (max-width: 992px) {
   .projects-section {
-    padding: 5rem 1rem 6rem;
+    padding: 5rem 1.25rem 6.5rem;
   }
 
   .projects-sticky-stack {
-    margin-top: 2rem;
+    margin-top: 2.25rem;
   }
 
+  /* Stepped sticky offset adjusted for tablets */
   .project-sticky-card-wrap {
     top: calc(var(--nav-height) + 1rem + (var(--card-index, 0) * 1.5rem));
-    margin-bottom: 3.5rem;
+    margin-bottom: 3.75rem;
   }
 
   .project-grid {
@@ -1705,14 +1723,13 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   }
 
   .project-media-col {
-    border-top-left-radius: 21px;
-    border-top-right-radius: 21px;
-    border-bottom-left-radius: 0;
+    border-radius: 21px 21px 0 0;
+    min-height: auto;
   }
 
   .project-media-inner {
-    height: 180px;
-    min-height: 180px;
+    height: 220px;
+    min-height: auto;
   }
 
   .project-media-overlay {
@@ -1720,33 +1737,202 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   }
 
   .project-content-col {
-    padding: 1.25rem 1.5rem;
+    padding: 1.5rem 1.75rem;
+    gap: 0.85rem;
+  }
+
+  .project-title {
+    font-size: 1.35rem;
+  }
+}
+
+/* 2. Standard Mobile Phones (max-width: 768px, e.g. iPhone, Android) */
+@media (max-width: 768px) {
+  .projects-section {
+    padding: 3.75rem 0.85rem 5rem;
+  }
+
+  .projects-section .section-header {
+    margin-bottom: 1.75rem;
+  }
+
+  .projects-sticky-stack {
+    margin-top: 1.75rem;
+  }
+
+  /* Compact stepped sticky offset prevents card cutoffs while preserving stacking */
+  .project-sticky-card-wrap {
+    top: calc(var(--nav-height) + 0.65rem + (var(--card-index, 0) * 1.1rem));
+    margin-bottom: 3rem;
+  }
+
+  .project-media-inner {
+    height: 190px;
+  }
+
+  .project-content-col {
+    padding: 1.25rem 1.25rem;
     gap: 0.75rem;
   }
 
   .project-title {
-    font-size: 1.25rem;
-  }
-}
-
-@media (max-width: 600px) {
-  .project-content-col {
-    padding: 1.1rem 1.1rem;
+    font-size: 1.22rem;
+    line-height: 1.3;
   }
 
+  .project-description {
+    font-size: 0.88rem;
+    line-height: 1.6;
+  }
+
+  .project-chips-wrap {
+    gap: 0.4rem;
+  }
+
+  .project-chips-wrap .floating-chip {
+    padding: 0.3rem 0.65rem;
+    font-size: 0.74rem;
+    min-height: 30px;
+  }
+
+  /* Keep top 4 chips on mobile to prevent vertical bloating */
   .project-chips-wrap .floating-chip:nth-child(n+5) {
     display: none;
   }
 
   .project-footer {
+    gap: 0.75rem;
+    padding-top: 0.85rem;
+  }
+}
+
+/* 3. Compact Viewports (max-width: 480px, e.g. iPhone SE, iPhone 12/13/14 mini, 375px-390px) */
+@media (max-width: 480px) {
+  .projects-section {
+    padding: 3rem 0.65rem 4.5rem;
+  }
+
+  .project-card {
+    border-radius: 18px;
+  }
+
+  .project-media-col {
+    border-radius: 17px 17px 0 0;
+  }
+
+  .project-media-inner {
+    height: 165px;
+  }
+
+  /* Scaled-down status tag with ample thumb clearance */
+  .project-status-tag {
+    top: 0.75rem;
+    left: 0.75rem;
+    padding: 0.25rem 0.65rem;
+    font-size: 0.65rem;
+  }
+
+  .project-content-col {
+    padding: 1.1rem 1rem;
+    gap: 0.65rem;
+  }
+
+  .project-tags-top {
+    gap: 0.35rem;
+  }
+
+  .project-badge {
+    font-size: 0.68rem;
+    padding: 0.2rem 0.55rem;
+  }
+
+  .project-stack-badge {
+    font-size: 0.68rem;
+    padding: 0.2rem 0.5rem;
+  }
+
+  .project-title {
+    font-size: 1.12rem;
+    line-height: 1.32;
+  }
+
+  /* Clamp description on tiny screens to guarantee entire card fits on screen without overflow */
+  .project-description {
+    font-size: 0.84rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Ultra-compact sticky spacing for 480px viewports */
+  .project-sticky-card-wrap {
+    top: calc(var(--nav-height) + 0.45rem + (var(--card-index, 0) * 0.85rem));
+    margin-bottom: 2.25rem;
+  }
+
+  /* Full-width thumb-friendly footer and touch target */
+  .project-footer {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 0.6rem;
+    align-items: stretch;
+    gap: 0.65rem;
+  }
+
+  .project-author-meta {
+    justify-content: space-between;
+    width: 100%;
   }
 
   .project-action-link {
     width: 100%;
     justify-content: center;
+    min-height: 44px;
+    padding: 0.65rem 1rem;
+    font-size: 0.86rem;
+  }
+}
+
+/* 4. Landscape / Short Viewports (max-height: 560px) */
+/* In mobile landscape orientation, fallback to relative positioning to prevent viewport trapping */
+@media (max-height: 560px) {
+  .project-sticky-card-wrap {
+    position: relative !important;
+    top: auto !important;
+    margin-bottom: 2rem !important;
+  }
+}
+
+/* 5. Desktop Pointer vs Mobile Touch Optimization */
+@media (hover: hover) and (pointer: fine) {
+  .project-card:hover .project-img {
+    transform: scale(1.04);
+  }
+
+  .project-action-link:hover {
+    background: rgba(171, 170, 173, 0.18);
+    border-color: var(--border-hover);
+    color: var(--text-highlight);
+  }
+
+  .project-action-link:hover .action-icon-arrow {
+    transform: translateX(4px);
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  /* Prevent sticky hover states on mobile taps; provide instant active tactile feedback */
+  .project-card:hover .project-img {
+    transform: none;
+  }
+
+  .project-card:active {
+    border-color: var(--border-hover);
+  }
+
+  .project-action-link:active {
+    background: rgba(171, 170, 173, 0.22);
+    transform: scale(0.98);
   }
 }
 
