@@ -728,9 +728,8 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 .parallax-container {
   position: relative;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
-  min-height: 820px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -791,137 +790,6 @@ h1, h2, h3, h4, h5, h6, .hero-title {
     linear-gradient(to bottom, rgba(18, 18, 20, 0.06) 1px, transparent 1px);
 }
 
-/* ==========================================================================
-   Terminal Wrapper & Organically Scattered Parallax Chips
-   ========================================================================== */
-
-.terminal-wrapper {
-  position: relative;
-  width: 100%;
-  max-width: 860px;
-  margin: 0 auto;
-}
-
-.chip-anchor {
-  position: absolute;
-  pointer-events: none;
-  z-index: 6;
-  will-change: transform;
-}
-
-.floating-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0.45rem 1rem;
-  border-radius: 9999px;
-  background: rgba(24, 24, 28, 0.82);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  color: var(--text-highlight);
-  pointer-events: auto;
-  transition: var(--theme-transition), border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
-  user-select: none;
-  white-space: nowrap;
-}
-
-[data-theme="light"] .floating-chip {
-  background: rgba(215, 214, 218, 0.9);
-  box-shadow: 0 10px 24px rgba(18, 18, 20, 0.12);
-}
-
-.floating-chip:hover {
-  border-color: var(--border-hover);
-  transform: scale(1.08) translateY(-2px);
-  box-shadow: 0 14px 34px rgba(171, 170, 173, 0.2);
-}
-
-.chip-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #4ade80;
-  box-shadow: 0 0 8px rgba(74, 222, 128, 0.8);
-  flex-shrink: 0;
-}
-
-/* Subtle continuous drift animation for each chip */
-.chip-anim-1 { animation: chip-drift 5.6s ease-in-out infinite alternate; }
-.chip-anim-2 { animation: chip-drift 6.4s ease-in-out 0.8s infinite alternate; }
-.chip-anim-3 { animation: chip-drift 5.9s ease-in-out 1.6s infinite alternate; }
-.chip-anim-4 { animation: chip-drift 6.6s ease-in-out 2.4s infinite alternate; }
-.chip-anim-5 { animation: chip-drift 5.3s ease-in-out 1.2s infinite alternate; }
-.chip-anim-6 { animation: chip-drift 6.1s ease-in-out 2.0s infinite alternate; }
-
-@keyframes chip-drift {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-5px); }
-}
-
-/* Positions scattered organically OUTSIDE the terminal body perimeter */
-/* Upper Left */
-.chip-pos-1 {
-  top: 8%;
-  right: calc(100% + 24px);
-  left: auto;
-}
-
-/* Upper Right */
-.chip-pos-2 {
-  top: 14%;
-  left: calc(100% + 28px);
-  right: auto;
-}
-
-/* Mid Left */
-.chip-pos-3 {
-  top: 45%;
-  right: calc(100% + 38px);
-  left: auto;
-}
-
-/* Mid Right */
-.chip-pos-4 {
-  top: 52%;
-  left: calc(100% + 36px);
-  right: auto;
-}
-
-/* Bottom Left */
-.chip-pos-5 {
-  bottom: 12%;
-  right: calc(100% + 22px);
-  left: auto;
-}
-
-/* Bottom Right */
-.chip-pos-6 {
-  bottom: 10%;
-  left: calc(100% + 26px);
-  right: auto;
-}
-
-/* Viewports between 1100px and 1280px (narrower gap) */
-@media (max-width: 1280px) {
-  .chip-pos-1 { right: calc(100% + 14px); }
-  .chip-pos-2 { left: calc(100% + 14px); }
-  .chip-pos-3 { right: calc(100% + 18px); }
-  .chip-pos-4 { left: calc(100% + 18px); }
-  .chip-pos-5 { right: calc(100% + 12px); }
-  .chip-pos-6 { left: calc(100% + 14px); }
-}
-
-@media (max-width: 1100px) {
-  .chip-anchor,
-  .floating-chip {
-    display: none !important;
-  }
-}
-
 /* Section Header */
 .about-container {
   width: 100%;
@@ -969,10 +837,8 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 
 /* Magic UI Terminal Window */
 .terminal-window {
-  position: relative;
-  z-index: 10;
   width: 100%;
-  max-width: 860px;
+  max-width: 920px;
   border-radius: 20px;
   background: rgba(18, 18, 20, 0.76);
   backdrop-filter: blur(24px);
@@ -998,7 +864,7 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.85rem 1.4rem;
+  padding: 0.95rem 1.6rem;
   background: rgba(24, 24, 28, 0.82);
   border-bottom: 1px solid var(--border-color);
 }
@@ -1010,12 +876,12 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 .terminal-dots {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
 }
 
 .dot {
-  width: 11px;
-  height: 11px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   display: inline-block;
 }
@@ -1026,7 +892,7 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 
 .terminal-title {
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.86rem;
   font-weight: 500;
   color: var(--text-primary);
   letter-spacing: 0.04em;
@@ -1041,14 +907,14 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 .term-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.3rem 0.65rem;
-  border-radius: 6px;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 7px;
   background: rgba(171, 170, 173, 0.1);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   cursor: pointer;
   transition: all 0.2s ease;
   outline: none;
@@ -1062,10 +928,10 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 
 /* Terminal Body */
 .terminal-body {
-  padding: 2rem 2.25rem 2.5rem;
+  padding: 2.25rem 2.6rem 2.75rem;
   font-family: var(--font-mono);
-  font-size: 0.95rem;
-  line-height: 1.8;
+  font-size: 1.12rem;
+  line-height: 1.88;
 }
 
 .terminal-block {
@@ -1112,8 +978,8 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 
 .term-inline-cursor {
   display: inline-block;
-  width: 8px;
-  height: 15px;
+  width: 9px;
+  height: 19px;
   background-color: var(--text-highlight);
   margin-left: 4px;
   vertical-align: middle;
@@ -1132,7 +998,7 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 
 .terminal-output.visible {
   opacity: 1;
-  max-height: 500px;
+  max-height: 800px;
   transform: translateY(0);
 }
 
@@ -1148,8 +1014,8 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 }
 
 .terminal-bio-text p {
-  margin-bottom: 0.85rem;
-  line-height: 1.85;
+  margin-bottom: 0.95rem;
+  line-height: 1.9;
 }
 
 .terminal-bio-text p:last-child {
@@ -1164,7 +1030,7 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 .term-highlight {
   color: #f3f2f5;
   background: rgba(171, 170, 173, 0.14);
-  padding: 0.1rem 0.4rem;
+  padding: 0.12rem 0.45rem;
   border-radius: 4px;
   font-weight: 500;
 }
@@ -1177,9 +1043,9 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 .term-code {
   background: rgba(171, 170, 173, 0.1);
   border: 1px solid var(--border-color);
-  padding: 0.1rem 0.35rem;
+  padding: 0.12rem 0.42rem;
   border-radius: 4px;
-  font-size: 0.88rem;
+  font-size: 1.02rem;
   color: var(--text-highlight);
 }
 
@@ -1194,8 +1060,8 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 
 .term-cursor {
   display: inline-block;
-  width: 8px;
-  height: 15px;
+  width: 9px;
+  height: 19px;
   background-color: var(--text-highlight);
   margin-left: 4px;
   vertical-align: middle;
@@ -1207,16 +1073,11 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   50% { opacity: 0; }
 }
 
-/* Responsive Terminal & Parallax Chips */
+/* Responsive Terminal */
 @media (max-width: 960px) {
-  .chip-anchor,
-  .floating-chip {
-    display: none !important;
-  }
-
   .terminal-body {
-    padding: 1.5rem 1.25rem 2rem;
-    font-size: 0.88rem;
+    padding: 1.6rem 1.4rem 2rem;
+    font-size: 0.98rem;
   }
 }
 
@@ -1227,15 +1088,6 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .chip-anim-1,
-  .chip-anim-2,
-  .chip-anim-3,
-  .chip-anim-4,
-  .chip-anim-5,
-  .chip-anim-6 {
-    animation: none !important;
-  }
-
   .pullcord-inner--drop {
     animation: none;
   }

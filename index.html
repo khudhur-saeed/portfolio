@@ -197,8 +197,8 @@
           <div class="about-grid-pattern"></div>
         </div>
 
-        <!-- Main Layer: Section Header + Terminal Wrapper -->
-        <div class="parallax-main-layer">
+        <!-- Parallax Main Layer (Depth 0.08): Section Header + Magic UI Terminal -->
+        <div class="parallax-layer parallax-main-layer" data-depth="0.08">
           <div class="about-container">
             
             <!-- Section Header -->
@@ -211,137 +211,84 @@
               <p class="section-subtitle">Bridging analytical threat detection with secure-by-default software engineering.</p>
             </div>
 
-            <!-- Terminal Wrapper with Organically Scattered Parallax Chips -->
-            <div class="terminal-wrapper" id="terminalWrapper">
-
-              <!-- Chip 1 (Upper Left): AES-256-GCM -->
-              <div class="chip-anchor chip-pos-1" data-depth="0.28" aria-hidden="true">
-                <div class="floating-chip chip-anim-1">
-                  <span class="chip-dot"></span>
-                  <code>AES-256-GCM</code>
+            <!-- Magic UI Interactive Terminal Window -->
+            <div class="terminal-window" id="terminalWindow">
+              
+              <!-- Terminal Header Bar with Mac Dots & Quick Actions -->
+              <div class="terminal-header">
+                <div class="terminal-dots" aria-hidden="true">
+                  <span class="dot dot-close"></span>
+                  <span class="dot dot-minimize"></span>
+                  <span class="dot dot-expand"></span>
+                </div>
+                <div class="terminal-title">khedr@dev:~ (bash)</div>
+                <div class="terminal-actions">
+                  <button type="button" class="term-btn" id="termCopyBtn" title="Copy Output" aria-label="Copy terminal text">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    <span id="termCopyText">Copy</span>
+                  </button>
+                  <button type="button" class="term-btn" id="termReplayBtn" title="Replay Animation" aria-label="Replay terminal typing animation">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                    <span>Replay</span>
+                  </button>
                 </div>
               </div>
 
-              <!-- Chip 2 (Upper Right): Zero-Knowledge -->
-              <div class="chip-anchor chip-pos-2" data-depth="0.45" aria-hidden="true">
-                <div class="floating-chip chip-anim-2">
-                  <span class="chip-dot"></span>
-                  <code>Zero-Knowledge</code>
-                </div>
-              </div>
-
-              <!-- Chip 3 (Mid Left): OWASP Top 10 -->
-              <div class="chip-anchor chip-pos-3" data-depth="0.36" aria-hidden="true">
-                <div class="floating-chip chip-anim-3">
-                  <span class="chip-dot"></span>
-                  <code>OWASP Top 10</code>
-                </div>
-              </div>
-
-              <!-- Chip 4 (Mid Right): FastAPI & Docker -->
-              <div class="chip-anchor chip-pos-4" data-depth="0.24" aria-hidden="true">
-                <div class="floating-chip chip-anim-4">
-                  <span class="chip-dot"></span>
-                  <code>FastAPI &amp; Docker</code>
-                </div>
-              </div>
-
-              <!-- Chip 5 (Bottom Left): Network Analysis -->
-              <div class="chip-anchor chip-pos-5" data-depth="0.42" aria-hidden="true">
-                <div class="floating-chip chip-anim-5">
-                  <span class="chip-dot"></span>
-                  <code>Network Analysis</code>
-                </div>
-              </div>
-
-              <!-- Chip 6 (Bottom Right): Argon2id -->
-              <div class="chip-anchor chip-pos-6" data-depth="0.32" aria-hidden="true">
-                <div class="floating-chip chip-anim-6">
-                  <span class="chip-dot"></span>
-                  <code>Argon2id</code>
-                </div>
-              </div>
-
-              <!-- Magic UI Interactive Terminal Window -->
-              <div class="terminal-window" id="terminalWindow">
+              <!-- Terminal Body Content -->
+              <div class="terminal-body" id="terminalBody">
                 
-                <!-- Terminal Header Bar with Mac Dots & Quick Actions -->
-                <div class="terminal-header">
-                  <div class="terminal-dots" aria-hidden="true">
-                    <span class="dot dot-close"></span>
-                    <span class="dot dot-minimize"></span>
-                    <span class="dot dot-expand"></span>
-                  </div>
-                  <div class="terminal-title">khedr@dev:~ (bash)</div>
-                  <div class="terminal-actions">
-                    <button type="button" class="term-btn" id="termCopyBtn" title="Copy Output" aria-label="Copy terminal text">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                      <span id="termCopyText">Copy</span>
-                    </button>
-                    <button type="button" class="term-btn" id="termReplayBtn" title="Replay Animation" aria-label="Replay terminal typing animation">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
-                      <span>Replay</span>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Terminal Body Content -->
-                <div class="terminal-body" id="terminalBody">
-                  
-                  <!-- Command 1: whoami -->
-                  <div class="terminal-block" id="termBlock1">
-                    <div class="terminal-prompt-line">
-                      <span class="prompt-user">khedr@dev</span><span class="prompt-sep">:</span><span class="prompt-path">~</span><span class="prompt-dollar">$</span>
-                      <span class="typed-command" id="cmdWhoami"></span>
-                    </div>
-                    <div class="terminal-output" id="outWhoami">
-                      <span class="output-prefix">&gt;</span> <span class="highlight-name">Khedr mohammed</span> — Full-Stack Web Developer &amp; Software Engineer
-                    </div>
-                  </div>
-
-                  <!-- Command 2: cat about.txt -->
-                  <div class="terminal-block term-hidden" id="termBlock2">
-                    <div class="terminal-prompt-line">
-                      <span class="prompt-user">khedr@dev</span><span class="prompt-sep">:</span><span class="prompt-path">~</span><span class="prompt-dollar">$</span>
-                      <span class="typed-command" id="cmdCat"></span>
-                    </div>
-                    <div class="terminal-output terminal-bio-text" id="outCat">
-                      <p>
-                        Computer Engineering graduate candidate with a dual focus on 
-                        <span class="term-keyword">Cybersecurity/Network Analysis</span> and 
-                        <span class="term-keyword">Secure Backend Development</span>. Proficient in vulnerability assessment, 
-                        <span class="term-highlight">OWASP Top 10 mitigation</span>, and network inspection using tools like 
-                        <span class="term-code">Burp Suite</span>, <span class="term-code">Nmap</span>, and <span class="term-code">Metasploit</span>.
-                      </p>
-                      <p>
-                        Experienced in designing scalable, secure backend systems and databases utilizing 
-                        <span class="term-keyword">Python, FastAPI, PostgreSQL, Elasticsearch, and Docker</span>, 
-                        with a strong background in <span class="term-highlight">Zero-Knowledge architectures</span> and 
-                        authenticated cryptography (<span class="term-code">AES-256-GCM, Argon2id</span>). Aimed at bridging analytical threat detection with secure-by-default software engineering.
-                      </p>
-                    </div>
-                  </div>
-
-                  <!-- Command 3: echo $PASSION -->
-                  <div class="terminal-block term-hidden" id="termBlock3">
-                    <div class="terminal-prompt-line">
-                      <span class="prompt-user">khedr@dev</span><span class="prompt-sep">:</span><span class="prompt-path">~</span><span class="prompt-dollar">$</span>
-                      <span class="typed-command" id="cmdEcho"></span>
-                    </div>
-                    <div class="terminal-output terminal-passion" id="outEcho">
-                      <span class="output-prefix">&gt;</span> <span class="passion-quote">"Turning complex ideas into elegant, reliable digital experiences."</span>
-                    </div>
-                  </div>
-
-                  <!-- Active prompt with blinking cursor -->
-                  <div class="terminal-prompt-line term-active-prompt term-hidden" id="termActivePrompt">
+                <!-- Command 1: whoami -->
+                <div class="terminal-block" id="termBlock1">
+                  <div class="terminal-prompt-line">
                     <span class="prompt-user">khedr@dev</span><span class="prompt-sep">:</span><span class="prompt-path">~</span><span class="prompt-dollar">$</span>
-                    <span class="term-cursor" aria-hidden="true"></span>
+                    <span class="typed-command" id="cmdWhoami"></span>
                   </div>
-
+                  <div class="terminal-output" id="outWhoami">
+                    <span class="output-prefix">&gt;</span> <span class="highlight-name">Khedr mohammed</span> — Full-Stack Web Developer &amp; Software Engineer
+                  </div>
                 </div>
-              </div>
 
+                <!-- Command 2: cat about.txt -->
+                <div class="terminal-block term-hidden" id="termBlock2">
+                  <div class="terminal-prompt-line">
+                    <span class="prompt-user">khedr@dev</span><span class="prompt-sep">:</span><span class="prompt-path">~</span><span class="prompt-dollar">$</span>
+                    <span class="typed-command" id="cmdCat"></span>
+                  </div>
+                  <div class="terminal-output terminal-bio-text" id="outCat">
+                    <p>
+                      Computer Engineering graduate candidate with a dual focus on 
+                      <span class="term-keyword">Cybersecurity/Network Analysis</span> and 
+                      <span class="term-keyword">Secure Backend Development</span>. Proficient in vulnerability assessment, 
+                      <span class="term-highlight">OWASP Top 10 mitigation</span>, and network inspection using tools like 
+                      <span class="term-code">Burp Suite</span>, <span class="term-code">Nmap</span>, and <span class="term-code">Metasploit</span>.
+                    </p>
+                    <p>
+                      Experienced in designing scalable, secure backend systems and databases utilizing 
+                      <span class="term-keyword">Python, FastAPI, PostgreSQL, Elasticsearch, and Docker</span>, 
+                      with a strong background in <span class="term-highlight">Zero-Knowledge architectures</span> and 
+                      authenticated cryptography (<span class="term-code">AES-256-GCM, Argon2id</span>). Aimed at bridging analytical threat detection with secure-by-default software engineering.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Command 3: echo $PASSION -->
+                <div class="terminal-block term-hidden" id="termBlock3">
+                  <div class="terminal-prompt-line">
+                    <span class="prompt-user">khedr@dev</span><span class="prompt-sep">:</span><span class="prompt-path">~</span><span class="prompt-dollar">$</span>
+                    <span class="typed-command" id="cmdEcho"></span>
+                  </div>
+                  <div class="terminal-output terminal-passion" id="outEcho">
+                    <span class="output-prefix">&gt;</span> <span class="passion-quote">"Turning complex ideas into elegant, reliable digital experiences."</span>
+                  </div>
+                </div>
+
+                <!-- Active prompt with blinking cursor -->
+                <div class="terminal-prompt-line term-active-prompt term-hidden" id="termActivePrompt">
+                  <span class="prompt-user">khedr@dev</span><span class="prompt-sep">:</span><span class="prompt-path">~</span><span class="prompt-dollar">$</span>
+                  <span class="term-cursor" aria-hidden="true"></span>
+                </div>
+
+              </div>
             </div>
 
           </div>
