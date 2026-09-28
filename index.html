@@ -538,6 +538,317 @@
       </div>
     </section>
 
+    <!-- =======================================================================
+         Featured Projects Section (Stacked Cards on Scroll)
+         ======================================================================= -->
+    <!-- =======================================================================
+         Featured Projects Section (Scroll-Driven Stack & Peel Reveal)
+         ======================================================================= -->
+    <section class="projects-section" id="projects">
+      
+      <!-- Pinned Scroll Track for Peel Deck Animation -->
+      <div class="projects-scroll-track" id="projectsTrack">
+        <div class="projects-stage">
+          <!-- Fixed Cyber Grid Background & Ambient Glow (Pinned during scroll) -->
+          <div class="about-grid-pattern stage-fixed-bg" data-relingo-block="true"></div>
+          <div class="stage-ambient-glow" aria-hidden="true"></div>
+
+          <div class="projects-container">
+            
+            <!-- Section Header -->
+            <div class="section-header projects-stage-header">
+              <div class="section-tag">
+                <span class="tag-icon">⚡</span>
+                <span>PROJECTS</span>
+              </div>
+              <h2 class="section-title">Featured Works</h2>
+              <p class="section-subtitle">Scroll to peel through mission-critical systems and architectures.</p>
+
+              <!-- Stack Step Indicators -->
+              <div class="projects-deck-indicators" id="deckIndicators">
+                <span class="deck-step-dot active" data-step="0"></span>
+                <span class="deck-step-dot" data-step="1"></span>
+                <span class="deck-step-dot" data-step="2"></span>
+              </div>
+            </div>
+
+            <!-- Stacking Cards Deck (DaisyUI stack-top layout) -->
+            <div class="projects-stack-deck stack stack-top" id="projectsDeck">
+              
+              <!-- Project Card 1: PulseSentinel EDR (Top Card) -->
+              <div class="project-stack-item" data-index="0" style="--stack-depth: 0; z-index: 3;">
+                <article class="project-card specular-card">
+                  <!-- Full Card Click Link to Project Webpage -->
+                  <a href="project-1.html" class="project-card-link-overlay" aria-label="Open PulseSentinel Project Web Page"></a>
+
+                  <div class="project-grid">
+                    
+                    <!-- Left: Project Image -->
+                    <div class="project-media-col">
+                      <div class="project-media-inner">
+                        <img src="assets/project-edr.jpg" alt="PulseSentinel EDR & Threat Detection Platform" class="project-img" loading="lazy">
+                        <div class="project-media-overlay"></div>
+                        <div class="project-status-tag">
+                          <span class="status-live-dot"></span>
+                          <span>LIVE SYSTEM</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Right: Content & Description -->
+                    <div class="project-content-col">
+                      <!-- Tags on Top of Title & Description -->
+                      <div class="project-tags-top">
+                        <span class="project-badge badge-cyan">Cybersecurity &amp; EDR</span>
+                        <span class="project-badge badge-ghost">Threat Hunting</span>
+                        <div class="project-stack-badge">
+                          <span class="stack-dot"></span>
+                          <span>01 / 03</span>
+                        </div>
+                      </div>
+
+                      <!-- Title = Name of the Project -->
+                      <h3 class="project-title">PulseSentinel: Real-Time EDR &amp; Threat Detection</h3>
+
+                      <!-- Description -->
+                      <p class="project-description">
+                        Distributed endpoint detection and response platform engineered for low-overhead telemetry gathering, active directory attack prevention (Pass-the-Hash &amp; Kerberoasting mitigation), and real-time interactive network topology anomaly visualization.
+                      </p>
+
+                      <!-- Tech Stack Chips -->
+                      <div class="project-chips-wrap">
+                        <div class="floating-chip">
+                          <span class="chip-dot"></span>
+                          <code>Go</code>
+                        </div>
+                        <div class="floating-chip">
+                          <span class="chip-dot"></span>
+                          <code>FastAPI</code>
+                        </div>
+                        <div class="floating-chip">
+                          <span class="chip-dot"></span>
+                          <code>PostgreSQL</code>
+                        </div>
+                        <div class="floating-chip">
+                          <span class="chip-dot"></span>
+                          <code>EDR Telemetry</code>
+                        </div>
+                        <div class="floating-chip">
+                          <span class="chip-dot"></span>
+                          <code>OWASP Top 10</code>
+                        </div>
+                        <div class="floating-chip">
+                          <span class="chip-dot"></span>
+                          <code>Burp Suite</code>
+                        </div>
+                      </div>
+
+                      <!-- Footer Meta & Actions -->
+                      <div class="project-footer">
+                        <div class="project-author-meta">
+                          <span class="meta-author">Khedr</span>
+                          <span class="meta-sep">·</span>
+                          <time class="meta-time">2026 Release</time>
+                        </div>
+                        <div class="project-links">
+                          <a href="project-1.html" class="project-action-link" aria-label="Explore PulseSentinel Project Web Page">
+                            <span>Explore Project</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon-arrow"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                          </a>
+                        </div>
+                      </div>
+
+                    </div>
+
+                  </div>
+                </article>
+              </div>
+
+              <!-- Project Card 2: Nexa RAG Engine (Middle Card) -->
+              <div class="project-stack-item" data-index="1" style="--stack-depth: 1; z-index: 2;">
+                <article class="project-card specular-card">
+                  <!-- Full Card Click Link to Project Webpage -->
+                  <a href="project-2.html" class="project-card-link-overlay" aria-label="Open Nexa Engine Project Web Page"></a>
+
+                  <div class="project-grid">
+                    
+                    <!-- Left: Project Image -->
+                    <div class="project-media-col">
+                      <div class="project-media-inner">
+                        <img src="assets/project-rag.jpg" alt="Nexa Intelligent RAG & Vector Embeddings Engine" class="project-img" loading="lazy">
+                        <div class="project-media-overlay"></div>
+                        <div class="project-status-tag">
+                          <span class="status-live-dot status-purple"></span>
+                          <span>PRODUCTION RAG</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Right: Content & Description -->
+                    <div class="project-content-col">
+                      <!-- Tags on Top of Title & Description -->
+                      <div class="project-tags-top">
+                        <span class="project-badge badge-purple">AI &amp; Vector Embeddings</span>
+                        <span class="project-badge badge-ghost">RAG Pipeline</span>
+                        <div class="project-stack-badge">
+                          <span class="stack-dot"></span>
+                          <span>02 / 03</span>
+                        </div>
+                      </div>
+
+                      <!-- Title = Name of the Project -->
+                      <h3 class="project-title">Nexa Engine: Intelligent RAG &amp; Vector Search</h3>
+
+                      <!-- Description -->
+                      <p class="project-description">
+                        Production-grade retrieval-augmented generation engine powered by Chroma Vector DB and Gemini text-embedding-004. Features real-time multi-document chunking, semantic reranking, and sub-85ms average query latency with tenant isolation.
+                      </p>
+
+                      <!-- Tech Stack Chips -->
+                      <div class="project-chips-wrap">
+                        <div class="floating-chip">
+                          <span class="chip-dot"></span>
+                          <code>LangChain</code>
+                        </div>
+                        <div class="floating-chip">
+                          <span class="chip-dot"></span>
+                          <code>RAG Architectures</code>
+                        </div>
+                        <div class="floating-chip">
+                          <span class="chip-dot"></span>
+                          <code>Chroma DB</code>
+                        </div>
+                        <div class="floating-chip">
+                          <span class="chip-dot"></span>
+                          <code>Google Gemini API</code>
+                        </div>
+                        <div class="floating-chip">
+                          <span class="chip-dot"></span>
+                          <code>FastAPI</code>
+                        </div>
+                        <div class="floating-chip">
+                          <span class="chip-dot"></span>
+                          <code>Docker</code>
+                        </div>
+                      </div>
+
+                      <!-- Footer Meta & Actions -->
+                      <div class="project-footer">
+                        <div class="project-author-meta">
+                          <span class="meta-author">Khedr</span>
+                          <span class="meta-sep">·</span>
+                          <time class="meta-time">2026 Release</time>
+                        </div>
+                        <div class="project-links">
+                          <a href="project-2.html" class="project-action-link" aria-label="Explore Nexa Engine Project Web Page">
+                            <span>Explore Project</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon-arrow"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                          </a>
+                        </div>
+                      </div>
+
+                    </div>
+
+                  </div>
+                </article>
+              </div>
+
+              <!-- Project Card 3: EnigmaVault SaaS (Bottom Card) -->
+              <div class="project-stack-item" data-index="2" style="--stack-depth: 2; z-index: 1;">
+                <article class="project-card specular-card">
+                  <!-- Full Card Click Link to Project Webpage -->
+                  <a href="project-3.html" class="project-card-link-overlay" aria-label="Open EnigmaVault Project Web Page"></a>
+
+                  <div class="project-grid">
+                    
+                    <!-- Left: Project Image -->
+                    <div class="project-media-col">
+                      <div class="project-media-inner">
+                        <img src="assets/project-saas.jpg" alt="EnigmaVault Zero-Knowledge Cryptographic Vault" class="project-img" loading="lazy">
+                        <div class="project-media-overlay"></div>
+                        <div class="project-status-tag">
+                          <span class="status-live-dot status-emerald"></span>
+                          <span>ZERO-KNOWLEDGE</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Right: Content & Description -->
+                    <div class="project-content-col">
+                      <!-- Tags on Top of Title & Description -->
+                      <div class="project-tags-top">
+                        <span class="project-badge badge-emerald">Applied Cryptography</span>
+                        <span class="project-badge badge-ghost">Zero-Knowledge</span>
+                        <div class="project-stack-badge">
+                          <span class="stack-dot"></span>
+                          <span>03 / 03</span>
+                        </div>
+                      </div>
+
+                      <!-- Title = Name of the Project -->
+                      <h3 class="project-title">EnigmaVault: Zero-Knowledge Multi-Cloud Vault</h3>
+
+                      <!-- Description -->
+                      <p class="project-description">
+                        High-throughput encrypted enterprise storage with client-side AES-256-GCM encryption, Argon2id key derivation, and RFC 6238 TOTP authentication. Architected with strict anti-enumeration and challenge-response protocols.
+                      </p>
+
+                      <!-- Tech Stack Chips -->
+                      <div class="project-chips-wrap">
+                        <div class="floating-chip">
+                          <span class="chip-dot"></span>
+                          <code>AES-256-GCM</code>
+                        </div>
+                        <div class="floating-chip">
+                          <span class="chip-dot"></span>
+                          <code>Argon2id</code>
+                        </div>
+                        <div class="floating-chip">
+                          <span class="chip-dot"></span>
+                          <code>RFC 6238 TOTP</code>
+                        </div>
+                        <div class="floating-chip">
+                          <span class="chip-dot"></span>
+                          <code>FastAPI</code>
+                        </div>
+                        <div class="floating-chip">
+                          <span class="chip-dot"></span>
+                          <code>PostgreSQL</code>
+                        </div>
+                        <div class="floating-chip">
+                          <span class="chip-dot"></span>
+                          <code>Async Engine</code>
+                        </div>
+                      </div>
+
+                      <!-- Footer Meta & Actions -->
+                      <div class="project-footer">
+                        <div class="project-author-meta">
+                          <span class="meta-author">Khedr</span>
+                          <span class="meta-sep">·</span>
+                          <time class="meta-time">2026 Release</time>
+                        </div>
+                        <div class="project-links">
+                          <a href="project-3.html" class="project-action-link" aria-label="Explore EnigmaVault Project Web Page">
+                            <span>Explore Project</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon-arrow"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                          </a>
+                        </div>
+                      </div>
+
+                    </div>
+
+                  </div>
+                </article>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <script src="script.js"></script>

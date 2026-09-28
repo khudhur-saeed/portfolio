@@ -1327,11 +1327,537 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   flex-shrink: 0;
 }
 
-@media (max-width: 768px) {
-  :root {
-    --pullcord-right: 1.5rem;
+
+/* =========================================================================
+   Featured Projects Section (Stacked Cards on Scroll)
+   ========================================================================= */
+.projects-section {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  scroll-margin-top: var(--nav-height);
+  border-top: 1px solid var(--border-color);
+  overflow: visible;
+  transition: var(--theme-transition);
+}
+
+/* Scroll Track gives the required scroll distance for the peel-reveal progression */
+.projects-scroll-track {
+  position: relative;
+  height: 280vh;
+  width: 100%;
+}
+
+/* Pinned Viewport Stage with Fixed Background */
+.projects-stage {
+  position: sticky;
+  top: var(--nav-height);
+  height: calc(100vh - var(--nav-height));
+  width: 100%;
+  background-color: var(--bg-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 1.25rem 1.5rem 1.75rem;
+  box-sizing: border-box;
+  transition: var(--theme-transition);
+}
+
+/* Fixed Cyber Grid Background inside the Pinned Stage */
+.stage-fixed-bg {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Ambient Radial Glow behind the Deck */
+.stage-ambient-glow {
+  position: absolute;
+  top: 52%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 780px;
+  height: 520px;
+  background: radial-gradient(ellipse at center, rgba(171, 170, 173, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+[data-theme="light"] .stage-ambient-glow {
+  background: radial-gradient(ellipse at center, rgba(18, 18, 20, 0.05) 0%, transparent 70%);
+}
+
+.projects-container {
+  max-width: 1140px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.projects-stage-header {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.projects-stage-header .section-title {
+  margin-bottom: 0.25rem;
+  font-size: 2.1rem;
+}
+
+.projects-stage-header .section-subtitle {
+  font-size: 0.92rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+/* Step Indicator Dots */
+.projects-deck-indicators {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+  padding: 0.3rem 0.85rem;
+  background: rgba(171, 170, 173, 0.08);
+  border: 1px solid var(--border-color);
+  border-radius: 9999px;
+}
+
+.deck-step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--text-primary);
+  opacity: 0.35;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.deck-step-dot.active {
+  width: 22px;
+  background: var(--text-highlight);
+  opacity: 1;
+}
+
+/* Stacking Cards Deck - DaisyUI stack & stack-top structure */
+.projects-stack-deck.stack {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  width: 100%;
+  max-width: 1100px;
+  position: relative;
+  perspective: 1200px;
+  padding-top: 46px; /* Room for back cards peeking out at the top */
+}
+
+/* Individual Card in the Deck */
+.project-stack-item {
+  grid-column: 1;
+  grid-row: 1;
+  width: 100%;
+  transform-origin: center top;
+  will-change: transform, opacity, filter;
+  transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* stack-top: Cards behind peek out from the TOP (DaisyUI stack-top) */
+.projects-stack-deck.stack.stack-top .project-stack-item[data-index="0"] {
+  transform: translate3d(0, 0px, 0) scale(1);
+  filter: brightness(1);
+  opacity: 1;
+  z-index: 3;
+}
+
+.projects-stack-deck.stack.stack-top .project-stack-item[data-index="1"] {
+  transform: translate3d(0, -20px, 0) scale(0.96);
+  filter: brightness(0.88);
+  opacity: 0.88;
+  z-index: 2;
+}
+
+.projects-stack-deck.stack.stack-top .project-stack-item[data-index="2"] {
+  transform: translate3d(0, -40px, 0) scale(0.92);
+  filter: brightness(0.76);
+  opacity: 0.75;
+  z-index: 1;
+}
+
+.project-card {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 22px;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 -8px 25px -4px rgba(0, 0, 0, 0.45), 0 20px 45px -8px rgba(0, 0, 0, 0.65);
+  transition: border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Full Card Click Overlay linking to the project web page */
+.project-card-link-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  border-radius: 22px;
+  display: block;
+  text-indent: -9999px;
+  overflow: hidden;
+}
+
+[data-theme="light"] .project-card {
+  box-shadow: 0 -6px 20px -4px rgba(18, 18, 20, 0.12), 0 16px 36px -8px rgba(18, 18, 20, 0.2);
+}
+
+/* Ensure foreground buttons and chips remain interactive */
+.project-footer,
+.project-action-link,
+.floating-chip,
+.project-links {
+  position: relative;
+  z-index: 7;
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: 1.12fr 1fr;
+  min-height: 440px;
+}
+
+/* Left: Media Column */
+.project-media-col {
+  position: relative;
+  overflow: hidden;
+  background: #0d0d10;
+  border-top-left-radius: 21px;
+  border-bottom-left-radius: 21px;
+  min-height: 440px;
+}
+
+.project-media-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 440px;
+  overflow: hidden;
+}
+
+.project-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  display: block;
+}
+
+.project-card:hover .project-img {
+  transform: scale(1.04);
+}
+
+.project-media-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to right, transparent 65%, var(--bg-card) 100%),
+              linear-gradient(to top, rgba(18, 18, 20, 0.5) 0%, transparent 40%);
+}
+
+[data-theme="light"] .project-media-overlay {
+  background: linear-gradient(to right, transparent 65%, var(--bg-card) 100%),
+              linear-gradient(to top, rgba(202, 201, 204, 0.4) 0%, transparent 40%);
+}
+
+.project-status-tag {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.25rem;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(18, 18, 20, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #f2f2f4;
+  letter-spacing: 0.05em;
+}
+
+.status-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: pulseDot 2s infinite ease-in-out;
+  flex-shrink: 0;
+}
+
+.status-live-dot.status-purple {
+  background: #a855f7;
+  box-shadow: 0 0 8px #a855f7;
+}
+
+.status-live-dot.status-emerald {
+  background: #06b6d4;
+  box-shadow: 0 0 8px #06b6d4;
+}
+
+@keyframes pulseDot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
   }
 }
+
+/* Right: Content Column */
+.project-content-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2.25rem 2.65rem;
+  gap: 1rem;
+  background: var(--bg-card);
+}
+
+.project-tags-top {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.project-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+.badge-cyan {
+  background: rgba(6, 182, 212, 0.12);
+  color: #22d3ee;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.badge-purple {
+  background: rgba(168, 85, 247, 0.12);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.badge-emerald {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-ghost {
+  background: rgba(171, 170, 173, 0.08);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.project-stack-badge {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  opacity: 0.85;
+  padding: 0.2rem 0.6rem;
+  background: rgba(171, 170, 173, 0.08);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+}
+
+.stack-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.7;
+}
+
+.project-title {
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--text-highlight);
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  margin: 0;
+  transition: color 0.25s ease;
+}
+
+.project-description {
+  font-size: 0.93rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.project-chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.project-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.project-author-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+.meta-author {
+  font-weight: 600;
+  color: var(--text-highlight);
+}
+
+.meta-sep {
+  opacity: 0.5;
+}
+
+.project-action-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-highlight);
+  text-decoration: none;
+  padding: 0.45rem 1rem;
+  border-radius: 8px;
+  background: rgba(171, 170, 173, 0.08);
+  border: 1px solid var(--border-color);
+  transition: all 0.25s ease;
+}
+
+.project-action-link:hover {
+  background: rgba(171, 170, 173, 0.18);
+  border-color: var(--border-hover);
+  color: var(--text-highlight);
+}
+
+.project-action-link:hover .action-icon-arrow {
+  transform: translateX(4px);
+}
+
+.action-icon-arrow {
+  transition: transform 0.25s ease;
+}
+
+/* Responsive Queries for Project Cards */
+@media (max-width: 992px) {
+  .projects-stage {
+    padding: 1rem 1rem 1.25rem;
+    height: calc(100vh - var(--nav-height));
+  }
+
+  .projects-stage-header {
+    margin-bottom: 0.75rem;
+  }
+
+  .projects-stage-header .section-title {
+    font-size: 1.6rem;
+  }
+
+  .projects-stage-header .section-subtitle {
+    display: none;
+  }
+
+  .project-grid {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    max-height: calc(100vh - var(--nav-height) - 120px);
+    overflow-y: auto;
+  }
+
+  .project-media-col {
+    border-top-left-radius: 21px;
+    border-top-right-radius: 21px;
+    border-bottom-left-radius: 0;
+  }
+
+  .project-media-inner {
+    height: 180px;
+    min-height: 180px;
+  }
+
+  .project-media-overlay {
+    background: linear-gradient(to top, var(--bg-card) 0%, transparent 60%);
+  }
+
+  .project-content-col {
+    padding: 1.25rem 1.5rem;
+    gap: 0.75rem;
+  }
+
+  .project-title {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .project-content-col {
+    padding: 1.1rem 1.1rem;
+  }
+
+  .project-chips-wrap .floating-chip:nth-child(n+5) {
+    display: none;
+  }
+
+  .project-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+
+  .project-action-link {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 
 @media (prefers-reduced-motion: reduce) {
   .pullcord-inner--drop {
@@ -1382,5 +1908,32 @@ h1, h2, h3, h4, h5, h6, .hero-title {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;
+  }
+
+  .projects-scroll-track {
+    height: auto !important;
+  }
+
+  .projects-stage {
+    position: relative !important;
+    height: auto !important;
+    padding: 4rem 1.5rem !important;
+  }
+
+  .projects-stack-deck {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2.5rem !important;
+  }
+
+  .project-stack-item {
+    transform: none !important;
+    filter: none !important;
+    opacity: 1 !important;
+  }
+
+  .project-img {
+    transition: none !important;
+    transform: none !important;
   }
 }
