@@ -1461,6 +1461,234 @@ khedr@dev:~$ echo $PASSION
     }
   }
 
+  // =========================================================================
+  // ContactPhysicsChips Controller (Matter.js 2D Rigid Body Physics)
+  // =========================================================================
+  class ContactPhysicsChips {
+    constructor(containerSelector = '#physicsContainer') {
+      this.container = document.querySelector(containerSelector);
+      if (!this.container) return;
+
+      this.chips = Array.from(this.container.querySelectorAll('[data-stack-chip="true"]'));
+      if (this.chips.length === 0) return;
+
+      if (typeof Matter === 'undefined') {
+        console.warn('Matter.js not loaded. Falling back to static layout.');
+        return;
+      }
+
+      this.initPhysics();
+    }
+
+    initPhysics() {
+      const { Engine, Runner, Bodies, Composite, Mouse, MouseConstraint, Events, Body } = Matter;
+
+      let width = Math.max(300, this.container.clientWidth || 450);
+      let height = Math.max(300, this.container.clientHeight || 380);
+
+      // Create engine with zero-gravity floating field so chips stay beautifully distributed
+      this.engine = Engine.create({
+        gravity: { x: 0, y: 0, scale: 0 }
+      });
+      this.runner = Runner.create();
+
+      // Bounding walls with ample padding
+      const wallThickness = 100;
+      this.walls = {
+        floor: Bodies.rectangle(width / 2, height + wallThickness / 2, width * 3, wallThickness, { isStatic: true, restitution: 0.8 }),
+        left: Bodies.rectangle(-wallThickness / 2, height / 2, wallThickness, height * 3, { isStatic: true, restitution: 0.8 }),
+        right: Bodies.rectangle(width + wallThickness / 2, height / 2, wallThickness, height * 3, { isStatic: true, restitution: 0.8 }),
+        ceiling: Bodies.rectangle(width / 2, -wallThickness / 2, width * 3, wallThickness, { isStatic: true, restitution: 0.8 })
+      };
+
+      Composite.add(this.engine.world, [
+        this.walls.floor,
+        this.walls.left,
+        this.walls.right,
+        this.walls.ceiling
+      ]);
+
+      // Well-balanced initial positions across upper, middle, and lower areas
+      const spawnConfig = [
+        { xRatio: 0.28, yRatio: 0.28, angle: -0.15 }, // GitHub (top-left)
+        { xRatio: 0.72, yRatio: 0.26, angle: 0.14 },  // Gmail (top-right)
+        { xRatio: 0.50, yRatio: 0.52, angle: -0.05 }, // LinkedIn (center)
+        { xRatio: 0.26, yRatio: 0.76, angle: 0.12 },  // Instagram (bottom-left)
+        { xRatio: 0.74, yRatio: 0.75, angle: -0.10 }  // X (bottom-right)
+      ];
+
+      this.chipItems = [];
+
+      this.chips.forEach((chipEl, idx) => {
+        const chipRect = chipEl.getBoundingClientRect();
+        const bw = Math.max(105, chipRect.width || 130);
+        const bh = Math.max(38, chipRect.height || 42);
+
+        const config = spawnConfig[idx] || { xRatio: 0.5, yRatio: 0.5, angle: 0 };
+        const x = Math.max(bw / 2 + 10, Math.min(width - bw / 2 - 10, width * config.xRatio));
+        const y = Math.max(bh / 2 + 10, Math.min(height - bh / 2 - 10, height * config.yRatio));
+
+        const body = Bodies.rectangle(x, y, bw, bh, {
+          chamfer: { radius: 14 },
+          restitution: 0.75,
+          friction: 0.1,
+          frictionAir: 0.016,
+          density: 0.0018,
+          angle: config.angle
+        });
+
+        // Gentle initial angular drift
+        Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.02);
+
+        chipEl.style.position = 'absolute';
+        chipEl.style.top = '0px';
+        chipEl.style.left = '0px';
+        chipEl.style.pointerEvents = 'auto';
+
+        this.chipItems.push({
+          body,
+          el: chipEl,
+          halfW: bw / 2,
+          halfH: bh / 2,
+          href: chipEl.getAttribute('data-href')
+        });
+
+        Composite.add(this.engine.world, body);
+      });
+
+      // Mouse constraint for dragging and tossing
+      const mouse = Mouse.create(this.container);
+      const mouseConstraint = MouseConstraint.create(this.engine, {
+        mouse: mouse,
+        constraint: {
+          stiffness: 0.7,
+          render: { visible: false }
+        }
+      });
+
+      // Remove wheel listener to allow page scrolling
+      if (mouse.element) {
+        mouse.element.removeEventListener('mousewheel', mouse.mousewheel);
+        mouse.element.removeEventListener('DOMMouseScroll', mouse.mousewheel);
+        mouse.element.removeEventListener('wheel', mouse.mousewheel);
+      }
+
+      Composite.add(this.engine.world, mouseConstraint);
+
+      // Distinguish tap to open link vs drag/toss
+      let pointerDownPos = { x: 0, y: 0 };
+      let pointerDownTime = 0;
+
+      const handlePointerDown = (e) => {
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        pointerDownPos = { x: clientX, y: clientY };
+        pointerDownTime = Date.now();
+      };
+
+      const handlePointerUp = (e) => {
+        const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+        const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+        const dist = Math.hypot(clientX - pointerDownPos.x, clientY - pointerDownPos.y);
+        const duration = Date.now() - pointerDownTime;
+
+        if (dist < 8 && duration < 500) {
+          const target = e.target.closest('[data-stack-chip="true"]');
+          if (target && target.dataset.href) {
+            const url = target.dataset.href;
+            if (url.startsWith('mailto:')) {
+              window.location.href = url;
+            } else {
+              window.open(url, '_blank', 'noopener,noreferrer');
+            }
+          }
+        }
+      };
+
+      this.container.addEventListener('mousedown', handlePointerDown);
+      this.container.addEventListener('mouseup', handlePointerUp);
+      this.container.addEventListener('touchstart', handlePointerDown, { passive: true });
+      this.container.addEventListener('touchend', handlePointerUp);
+
+      Events.on(mouseConstraint, 'startdrag', () => {
+        this.container.classList.add('is-grabbing');
+      });
+      Events.on(mouseConstraint, 'enddrag', () => {
+        this.container.classList.remove('is-grabbing');
+      });
+
+      // Strict boundary keeper on every frame
+      Events.on(this.engine, 'afterUpdate', () => {
+        const cw = this.container.clientWidth;
+        const ch = this.container.clientHeight;
+
+        for (let i = 0; i < this.chipItems.length; i++) {
+          const item = this.chipItems[i];
+          const b = item.body;
+
+          const minX = item.halfW + 4;
+          const maxX = cw - item.halfW - 4;
+          const minY = item.halfH + 4;
+          const maxY = ch - item.halfH - 4;
+
+          if (b.position.x < minX) {
+            Matter.Body.setPosition(b, { x: minX, y: b.position.y });
+            Matter.Body.setVelocity(b, { x: Math.abs(b.velocity.x) * 0.7, y: b.velocity.y });
+          } else if (b.position.x > maxX) {
+            Matter.Body.setPosition(b, { x: maxX, y: b.position.y });
+            Matter.Body.setVelocity(b, { x: -Math.abs(b.velocity.x) * 0.7, y: b.velocity.y });
+          }
+
+          if (b.position.y < minY) {
+            Matter.Body.setPosition(b, { x: b.position.x, y: minY });
+            Matter.Body.setVelocity(b, { x: b.velocity.x, y: Math.abs(b.velocity.y) * 0.7 });
+          } else if (b.position.y > maxY) {
+            Matter.Body.setPosition(b, { x: b.position.x, y: maxY });
+            Matter.Body.setVelocity(b, { x: b.velocity.x, y: -Math.abs(b.velocity.y) * 0.5 });
+          }
+
+          item.el.style.transform = `translate3d(${b.position.x - item.halfW}px, ${b.position.y - item.halfH}px, 0px) rotate(${b.angle}rad)`;
+        }
+      });
+
+      // Start physics runner
+      Runner.run(this.runner, this.engine);
+
+      // Pause when offscreen
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              this.runner.enabled = true;
+            } else {
+              this.runner.enabled = false;
+            }
+          });
+        }, { threshold: 0.05 });
+
+        observer.observe(this.container);
+      }
+
+      // Dynamic resize handler
+      const updateDimensions = () => {
+        const newW = this.container.clientWidth;
+        const newH = this.container.clientHeight;
+        if (newW && newH) {
+          Matter.Body.setPosition(this.walls.floor, { x: newW / 2, y: newH + wallThickness / 2 });
+          Matter.Body.setPosition(this.walls.right, { x: newW + wallThickness / 2, y: newH / 2 });
+          Matter.Body.setPosition(this.walls.ceiling, { x: newW / 2, y: -wallThickness / 2 });
+          Matter.Body.setPosition(this.walls.left, { x: -wallThickness / 2, y: newH / 2 });
+        }
+      };
+
+      if ('ResizeObserver' in window) {
+        new ResizeObserver(updateDimensions).observe(this.container);
+      } else {
+        window.addEventListener('resize', updateDimensions);
+      }
+    }
+  }
+
   // App Initialization on DOM Ready
   document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -1524,6 +1752,16 @@ khedr@dev:~$ echo $PASSION
 
     // 8. Initialize Smooth Scroll Deck Stacking for Featured Projects
     new ProjectStackScrollController();
+
+    // 9. Initialize Interactive Physics Chips for Contact Section
+    new ContactPhysicsChips('#physicsContainer');
+
+    // 10. Update Footer Copyright Year Dynamically
+    const footerYearEl = document.getElementById('footerYear');
+    if (footerYearEl) {
+      footerYearEl.textContent = new Date().getFullYear();
+    }
   });
 })();
+
 
