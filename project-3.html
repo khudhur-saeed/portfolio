@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EnigmaVault SaaS — Project Architecture | Khedr Mohammed</title>
-  <meta name="description" content="Detailed system architecture and case study for EnigmaVault Zero-Knowledge Cryptographic Storage Platform.">
+  <title>PDF Chat — Intelligent RAG Document Assistant | Khedr Mohammed</title>
+  <meta name="description" content="Detailed system architecture and case study for PDF Chat Intelligent RAG Document Assistant.">
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,7 +30,7 @@
     }
     .project-detail-card {
       width: 100%;
-      max-width: 820px;
+      max-width: 840px;
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: 24px;
@@ -92,8 +92,10 @@
 </head>
 <body>
   <div class="project-page-wrap">
+    <!-- Cyber Grid Background Pattern -->
     <div class="about-grid-pattern stage-fixed-bg" data-relingo-block="true"></div>
 
+    <!-- Navigation Header -->
     <header class="navbar-header">
       <nav class="navbar" aria-label="Main Navigation">
         <a href="index.html" class="logo" aria-label="Khedr Homepage">
@@ -101,11 +103,12 @@
         </a>
         <div class="nav-links">
           <a href="index.html#projects" class="nav-link">← All Projects</a>
-          <a href="index.html" class="btn btn-outline" style="padding: 0.4rem 0.9rem; font-size: 0.82rem;">Return Home</a>
+          <a href="https://github.com/khudhur-saeed/pdf_chat" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="padding: 0.45rem 1rem; font-size: 0.82rem;">GitHub Repo ↗</a>
         </div>
       </nav>
     </header>
 
+    <!-- Main Content -->
     <main class="project-hero-stage">
       <div class="project-detail-card specular-card">
         <div class="project-header-bar">
@@ -114,37 +117,42 @@
             <span style="width: 11px; height: 11px; border-radius: 50%; background: #f59e0b;"></span>
             <span style="width: 11px; height: 11px; border-radius: 50%; background: #10b981;"></span>
           </div>
-          <span style="font-family: var(--font-mono); font-size: 0.78rem; opacity: 0.8;">project://enigmavault-saas</span>
+          <span style="font-family: var(--font-mono); font-size: 0.78rem; opacity: 0.8;">project://pdf-chat-rag</span>
           <span style="width: 30px;"></span>
         </div>
 
         <div class="project-detail-body">
           <div class="project-img-preview">
-            <img src="assets/project-saas.jpg" alt="EnigmaVault Zero-Knowledge Cryptographic Vault">
+            <img src="assets/project-pdfchat.jpg" alt="PDF Chat Intelligent RAG Document Assistant">
           </div>
 
           <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
-            <span class="project-badge badge-emerald">Applied Cryptography</span>
-            <span class="project-badge badge-ghost">Zero-Knowledge</span>
-            <span style="font-family: var(--font-mono); font-size: 0.8rem; margin-left: auto; opacity: 0.7;">2026 Edition</span>
+            <span class="project-badge badge-emerald">RAG &amp; Document AI</span>
+            <span class="project-badge badge-ghost">Multi-Language</span>
+            <span style="font-family: var(--font-mono); font-size: 0.8rem; margin-left: auto; opacity: 0.7;">Production Release</span>
           </div>
 
-          <h1 style="font-size: 2rem; color: var(--text-highlight); margin: 0;">EnigmaVault: Zero-Knowledge Multi-Cloud Vault</h1>
+          <h1 style="font-size: 2rem; color: var(--text-highlight); margin: 0;">PDF Chat: Intelligent RAG Document Assistant</h1>
 
           <p style="font-size: 1rem; line-height: 1.7; color: var(--text-primary); margin: 0;">
-            High-throughput encrypted enterprise storage with client-side AES-256-GCM encryption, Argon2id key derivation, and RFC 6238 TOTP authentication. Architected with strict anti-enumeration and challenge-response protocols.
+            Production-ready retrieval-augmented generation (RAG) platform enabling intelligent multi-document conversations. Powered by LangChain, Google Gemini API, Chroma vector database, and Unstructured PDF text extraction with full RTL Arabic, English, and Turkish multi-language support.
           </p>
 
           <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
-            <div class="floating-chip"><span class="chip-dot"></span><code>AES-256-GCM</code></div>
-            <div class="floating-chip"><span class="chip-dot"></span><code>Argon2id</code></div>
-            <div class="floating-chip"><span class="chip-dot"></span><code>RFC 6238 TOTP</code></div>
             <div class="floating-chip"><span class="chip-dot"></span><code>FastAPI</code></div>
-            <div class="floating-chip"><span class="chip-dot"></span><code>PostgreSQL</code></div>
-            <div class="floating-chip"><span class="chip-dot"></span><code>Async Engine</code></div>
+            <div class="floating-chip"><span class="chip-dot"></span><code>LangChain</code></div>
+            <div class="floating-chip"><span class="chip-dot"></span><code>Google Gemini API</code></div>
+            <div class="floating-chip"><span class="chip-dot"></span><code>Chroma Vector DB</code></div>
+            <div class="floating-chip"><span class="chip-dot"></span><code>Unstructured</code></div>
+            <div class="floating-chip"><span class="chip-dot"></span><code>React 18</code></div>
+            <div class="floating-chip"><span class="chip-dot"></span><code>TypeScript</code></div>
+            <div class="floating-chip"><span class="chip-dot"></span><code>shadcn/ui</code></div>
           </div>
 
-          <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1rem;">
+          <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1rem; flex-wrap: wrap;">
+            <a href="https://github.com/khudhur-saeed/pdf_chat" target="_blank" rel="noopener noreferrer" class="project-action-link" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.4); color: #34d399;">
+              <span>View Source Code on GitHub ↗</span>
+            </a>
             <a href="index.html#projects" class="project-action-link">
               <span>← Back to Portfolio</span>
             </a>
@@ -153,6 +161,7 @@
       </div>
     </main>
 
+    <!-- Footer -->
     <footer class="project-page-footer">
       <p>Page Developed by <a href="https://github.com/khudhur-saeed" target="_blank" rel="noopener noreferrer" class="developed-by-link">khedr mohammed</a></p>
     </footer>

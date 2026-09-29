@@ -1161,7 +1161,13 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 }
 
 .skill-card-wide {
-  grid-column: 1 / -1;
+  grid-column: span 2;
+}
+
+@media (max-width: 1040px) {
+  .skill-card-wide {
+    grid-column: auto;
+  }
 }
 
 /* ==========================================================================
