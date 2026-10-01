@@ -1218,6 +1218,85 @@ khedr@dev:~$ echo $PASSION
   }
 
   /* =========================================================================
+     StackSectionController
+     Handles segmented category tabs, smooth active pill transition,
+     and animated filtering of tech stack chips.
+     ========================================================================= */
+  class StackSectionController {
+    constructor(containerSelector = '#stackInteractiveContainer') {
+      this.container = document.querySelector(containerSelector);
+      if (!this.container) return;
+
+      this.tabButtons = Array.from(this.container.querySelectorAll('.stack-tab-btn'));
+      this.chips = Array.from(this.container.querySelectorAll('.stack-chip'));
+      this.activeTab = 'all';
+
+      this.init();
+    }
+
+    init() {
+      if (!this.tabButtons.length || !this.chips.length) return;
+
+      this.tabButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const targetTab = btn.getAttribute('data-tab');
+          if (targetTab && targetTab !== this.activeTab) {
+            this.setTab(targetTab, btn);
+          }
+        });
+      });
+    }
+
+    setTab(tabName, clickedBtn) {
+      this.activeTab = tabName;
+
+      // Update Tab Buttons UI
+      this.tabButtons.forEach(btn => {
+        const isCurrent = btn === clickedBtn;
+        btn.setAttribute('aria-selected', isCurrent ? 'true' : 'false');
+
+        const indicator = btn.querySelector('.stack-tab-indicator');
+        const label = btn.querySelector('.stack-tab-label');
+
+        if (isCurrent) {
+          if (!indicator) {
+            // Move/create active indicator pill
+            const activeIndicator = document.createElement('div');
+            activeIndicator.className = 'stack-tab-indicator absolute inset-0 rounded-md bg-[var(--fg)] shadow-sm';
+            activeIndicator.style.transform = 'none';
+            btn.insertBefore(activeIndicator, btn.firstChild);
+          }
+          if (label) {
+            label.classList.remove('text-[var(--muted)]');
+            label.classList.add('font-semibold', 'text-[var(--bg)]');
+          }
+        } else {
+          if (indicator) {
+            indicator.remove();
+          }
+          if (label) {
+            label.classList.remove('font-semibold', 'text-[var(--bg)]');
+            label.classList.add('text-[var(--muted)]');
+          }
+        }
+      });
+
+      // Filter Chips (Instant Visibility Toggling, No Staggered Animation)
+      this.chips.forEach(chip => {
+        const category = chip.getAttribute('data-category');
+        const matches = (tabName === 'all' || category === tabName);
+
+        if (matches) {
+          chip.classList.remove('is-filtered-out');
+        } else {
+          chip.classList.add('is-filtered-out');
+        }
+      });
+    }
+  }
+
+  /* =========================================================================
      SpecularCardController Component (React Bits Inspired)
      Dynamic cursor-following specular border highlight across all cards
      ========================================================================= */
@@ -1744,8 +1823,8 @@ khedr@dev:~$ echo $PASSION
       new TerminalAnimationController(terminalEl);
     }
 
-    // 6. Initialize AnimatedContent on Skill Category Cards (React Bits)
-    new AnimatedContentController('.skill-category-card');
+    // 6. Initialize Modern Interactive Stack Section
+    new StackSectionController('#stackInteractiveContainer');
 
     // 7. Initialize Specular Effect across all Cards (React Bits SpecularButton adaptation)
     new SpecularCardController('.specular-card');

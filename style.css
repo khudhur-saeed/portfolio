@@ -40,6 +40,14 @@
   --behind-glow-size: 55%;
   --inner-gradient: linear-gradient(145deg, rgba(24, 24, 28, 0.85) 0%, rgba(18, 18, 20, 0.95) 100%);
   --card-radius: 28px;
+
+  /* Modern Stack Section Token Aliases (Dark Theme) */
+  --line: rgba(171, 170, 173, 0.18);
+  --chip: rgba(24, 24, 28, 0.72);
+  --fg: #f2f2f4;
+  --bg: #121214;
+  --muted: #abaaad;
+  --card: #18181c;
 }
 
 [data-theme="light"] {
@@ -55,6 +63,14 @@
   --shadow-color: rgba(18, 18, 20, 0.15);
   --gradient-glow: linear-gradient(135deg, #abaaad 0%, #68676d 50%, #121214 100%);
   --pullcord-ink: rgba(18, 18, 20, 0.6);
+
+  /* Modern Stack Section Token Aliases (Light Theme) */
+  --line: rgba(18, 18, 20, 0.2);
+  --chip: rgba(215, 214, 218, 0.75);
+  --fg: #121214;
+  --bg: #cac9cc;
+  --muted: #4e4d52;
+  --card: #d7d6da;
 
   /* ProfileCard light mode overrides */
   --behind-glow-color: rgba(18, 18, 20, 0.22);
@@ -718,7 +734,7 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 
 .about-section {
   position: relative;
-  padding: 7rem 1.5rem 8rem;
+  padding: 7rem 2rem 8rem;
   overflow: hidden;
   background-color: var(--bg-color);
   border-top: 1px solid var(--border-color);
@@ -728,7 +744,7 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 .parallax-container {
   position: relative;
   width: 100%;
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -838,7 +854,8 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 /* Magic UI Terminal Window */
 .terminal-window {
   width: 100%;
-  max-width: 920px;
+  max-width: 1200px;
+  margin: 0 auto;
   border-radius: 20px;
   background: rgba(18, 18, 20, 0.76);
   backdrop-filter: blur(24px);
@@ -1087,7 +1104,7 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 
 .skills-section {
   position: relative;
-  padding: 7rem 1.5rem 8rem;
+  padding: 7rem 2rem 8rem;
   background-color: var(--bg-color);
   border-top: 1px solid var(--border-color);
   transition: var(--theme-transition);
@@ -1100,6 +1117,347 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+/* ==========================================================================
+   Modern Interactive Stack Section
+   ========================================================================== */
+
+.max-w-\[760px\] {
+  max-width: 760px !important;
+}
+
+.border-x {
+  border-left-width: 1px !important;
+  border-right-width: 1px !important;
+}
+
+.border-dashed {
+  border-style: dashed !important;
+}
+
+.border-\[var\(--line\)\] {
+  border-color: var(--line) !important;
+}
+
+.px-6 {
+  padding-left: 1.5rem !important;
+  padding-right: 1.5rem !important;
+}
+
+.py-6 {
+  padding-top: 1.5rem !important;
+  padding-bottom: 1.5rem !important;
+}
+
+@media (min-width: 640px) {
+  .sm\:px-8 {
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+  }
+}
+
+.gap-1\.5 {
+  gap: 0.375rem !important;
+}
+
+.gap-2 {
+  gap: 0.5rem !important;
+}
+
+.gap-2\.5 {
+  gap: 0.625rem !important;
+}
+
+.rounded-lg {
+  border-radius: 0.5rem !important;
+}
+
+.rounded-md {
+  border-radius: 0.375rem !important;
+}
+
+.p-1 {
+  padding: 0.25rem !important;
+}
+
+.px-3 {
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+}
+
+.py-1\.5 {
+  padding-top: 0.375rem !important;
+  padding-bottom: 0.375rem !important;
+}
+
+.mt-6 {
+  margin-top: 1.5rem !important;
+}
+
+.text-\[12px\] {
+  font-size: 12px !important;
+  line-height: 1rem !important;
+}
+
+.font-medium {
+  font-weight: 500 !important;
+}
+
+.font-semibold {
+  font-weight: 600 !important;
+}
+
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+.cursor-default {
+  cursor: default !important;
+}
+
+.bg-\[var\(--chip\)\] {
+  background-color: var(--chip) !important;
+}
+
+.bg-\[var\(--fg\)\] {
+  background-color: var(--fg) !important;
+}
+
+.bg-\[var\(--card\)\] {
+  background-color: var(--card) !important;
+}
+
+.text-\[var\(--bg\)\] {
+  color: var(--bg) !important;
+}
+
+.text-\[var\(--fg\)\] {
+  color: var(--fg) !important;
+}
+
+.text-\[var\(--muted\)\] {
+  color: var(--muted) !important;
+}
+
+.border {
+  border-width: 1px !important;
+  border-style: solid !important;
+}
+
+.size-3\.5 {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.size-4 {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.shrink-0 {
+  flex-shrink: 0 !important;
+}
+
+.shadow-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.12) !important;
+}
+
+.shadow-xs {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+.transition-colors {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke !important;
+}
+
+.duration-200 {
+  transition-duration: 200ms !important;
+}
+
+.transition-all {
+  transition-property: all !important;
+}
+
+.relative {
+  position: relative !important;
+}
+
+.flex {
+  display: flex !important;
+}
+
+.inline-flex {
+  display: inline-flex !important;
+}
+
+.flex-wrap {
+  flex-wrap: wrap !important;
+}
+
+.items-center {
+  align-items: center !important;
+}
+
+.z-10 {
+  z-index: 10 !important;
+}
+
+.w-full {
+  width: 100% !important;
+}
+
+.mx-auto {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Stack Section Container (Unified 1200px & Borderless) */
+#stackInteractiveContainer {
+  position: relative !important;
+  max-width: 1200px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: 100% !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+/* Stack Segmented Tab Bar */
+.stack-tabs-bar {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.5rem !important;
+  border-radius: 0.85rem !important;
+  border: 1px solid var(--line) !important;
+  background-color: var(--chip) !important;
+  padding: 0.45rem !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* Stack Segmented Tab Button & Active Indicator */
+.stack-tab-btn {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.6rem !important;
+  border-radius: 0.6rem !important;
+  padding: 0.65rem 1.25rem !important;
+  font-size: 14.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.01em !important;
+  cursor: pointer !important;
+  background: transparent !important;
+  border: none !important;
+  color: inherit !important;
+  outline: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  overflow: visible !important;
+  transition: color 200ms ease !important;
+}
+
+.stack-tab-btn:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
+}
+
+/* Constrain active indicator strictly to the tab button bounds */
+.stack-tab-btn .stack-tab-indicator {
+  position: absolute !important;
+  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0.6rem !important;
+  background-color: var(--fg) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16) !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+}
+
+.stack-tab-btn .stack-tab-label {
+  position: relative !important;
+  z-index: 2 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.55rem !important;
+}
+
+.stack-tab-btn .stack-tab-label svg {
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0 !important;
+}
+
+.stack-tab-btn:hover .stack-tab-label.text-\[var\(--muted\)\] {
+  color: var(--fg) !important;
+}
+
+/* Stack Chips Container */
+#stackChipsContainer {
+  margin-top: 2rem !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.85rem !important;
+}
+
+/* Stack Chips Micro-Interactions (Larger & Premium) */
+.stack-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  border-radius: 0.65rem !important;
+  border: 1px solid var(--line) !important;
+  background-color: var(--card) !important;
+  padding: 0.65rem 1.25rem !important;
+  font-family: var(--font-mono) !important;
+  font-size: 14.5px !important;
+  line-height: 1.4rem !important;
+  color: var(--muted) !important;
+  cursor: default !important;
+  transition: all 220ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+}
+
+.stack-chip svg {
+  width: 20px !important;
+  height: 20px !important;
+  flex-shrink: 0 !important;
+}
+
+.stack-chip:hover {
+  transform: translateY(-2px) !important;
+  border-color: var(--fg) !important;
+  background-color: var(--fg) !important;
+  color: var(--bg) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22) !important;
+}
+
+.stack-chip:hover svg[stroke="currentColor"] {
+  stroke: var(--bg) !important;
+}
+
+.stack-chip:hover svg[fill="currentColor"] {
+  fill: var(--bg) !important;
+}
+
+.stack-chip:hover .group-hover\:brightness-110 {
+  filter: brightness(1.15) !important;
+}
+
+.stack-chip:hover .group-hover\:filter {
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.25)) !important;
+}
+
+/* Tab Filtering Visibility */
+.stack-chip.is-filtered-out {
+  display: none !important;
 }
 
 .skills-grid {
@@ -1341,7 +1699,7 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   position: relative;
   width: 100%;
   margin: 0;
-  padding: 6.5rem 1.5rem 8.5rem;
+  padding: 6.5rem 2rem 8.5rem;
   scroll-margin-top: var(--nav-height);
   border-top: 1px solid var(--border-color);
   background-color: var(--bg-color);
@@ -1367,7 +1725,7 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 }
 
 .projects-container {
-  max-width: 1140px;
+  max-width: 1200px;
   width: 100%;
   margin: 0 auto;
   position: relative;
@@ -1380,7 +1738,7 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 3rem auto 0;
   position: relative;
   box-sizing: border-box;
@@ -2469,4 +2827,67 @@ h1, h2, h3, h4, h5, h6, .hero-title {
     justify-content: center;
   }
 }
+
+/* ==========================================================================
+   Unified Container & Section Side Spacing System (1200px Flush Alignment)
+   ========================================================================== */
+
+.hero-section,
+.about-section,
+.skills-section,
+.projects-section,
+.contact-section {
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
+  box-sizing: border-box !important;
+}
+
+.hero-container,
+.about-container,
+.parallax-container,
+.terminal-window,
+.skills-container,
+#stackInteractiveContainer,
+.projects-container,
+.contact-container {
+  width: 100% !important;
+  max-width: 1200px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 992px) {
+  .hero-section,
+  .about-section,
+  .skills-section,
+  .projects-section,
+  .contact-section {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-section,
+  .about-section,
+  .skills-section,
+  .projects-section,
+  .contact-section {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section,
+  .about-section,
+  .skills-section,
+  .projects-section,
+  .contact-section {
+    padding-left: 0.85rem !important;
+    padding-right: 0.85rem !important;
+  }
+}
+
 
