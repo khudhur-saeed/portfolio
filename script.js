@@ -1768,8 +1768,8 @@ khedr@dev:~$ echo $PASSION
     }
   }
 
-  // App Initialization on DOM Ready
-  document.addEventListener('DOMContentLoaded', () => {
+  // App Initialization on DOM Ready (with immediate fallback if already ready)
+  const initApp = () => {
     const savedTheme = localStorage.getItem('theme') || 'dark';
     const isLightMode = savedTheme === 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
@@ -1840,7 +1840,13 @@ khedr@dev:~$ echo $PASSION
     if (footerYearEl) {
       footerYearEl.textContent = new Date().getFullYear();
     }
-  });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+  } else {
+    initApp();
+  }
 })();
 
 
