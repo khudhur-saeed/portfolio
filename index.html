@@ -590,320 +590,142 @@
     </section>
 
     <!-- =======================================================================
-         Featured Projects Section (Sticky Stacking Effect)
+         Featured Projects Section (Stepped Timeline Feature Style)
          ======================================================================= -->
     <section class="projects-section" id="projects">
       <!-- Fixed Cyber Grid Background Pattern -->
       <div class="about-grid-pattern projects-fixed-bg" data-relingo-block="true"></div>
 
-      <div class="projects-container">
-        
+      <div class="container projects-container">
         <!-- Section Header -->
         <div class="section-header" data-gsap-reveal>
           <div class="section-tag">
             <span class="tag-icon">⚡</span>
             <span>PROJECTS</span>
           </div>
-          <h2 class="section-title">Featured Works</h2>
-          <p class="section-subtitle">Battle-tested systems, intelligent RAG architectures, and zero-knowledge security implementations.</p>
+          <h2 class="section-title" data-relingo-block="true">Featured Works</h2>
+          <p class="section-subtitle" data-relingo-block="true">
+            Battle-tested systems, intelligent RAG architectures, and zero-knowledge security implementations.
+          </p>
         </div>
 
-        <!-- Sticky Stacking Cards Container -->
-        <div class="projects-sticky-stack" id="projectsStack">
+        <!-- Stepped Process / Timeline Container -->
+        <div class="mx-auto mt-14 flex max-w-4xl flex-col gap-6 lg:px-8" id="projectsTimeline">
           
-          <!-- Project Card 1: SecureBox (Top Project) -->
-          <div class="project-sticky-card-wrap" data-card-index="0" style="--card-index: 0;">
-            <article class="project-card specular-card">
-              <!-- Full Card Click Link to GitHub Repository -->
-              <a href="https://github.com/khudhur-saeed/SecureBox" target="_blank" rel="noopener noreferrer" class="project-card-link-overlay" aria-label="Open SecureBox GitHub Repository"></a>
-
-              <div class="project-grid">
-                
-                <!-- Left: Project Image -->
-                <div class="project-media-col">
-                  <div class="project-media-inner">
-                    <img src="assets/project-securebox.jpg" alt="SecureBox Zero-Knowledge Password Vault" class="project-img" loading="lazy">
-                    <div class="project-media-overlay"></div>
-                    <div class="project-status-tag">
-                      <span class="status-live-dot"></span>
-                      <span>ZERO-KNOWLEDGE VAULT</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Right: Content & Description -->
-                <div class="project-content-col">
-                  <!-- Tags on Top of Title & Description -->
-                  <div class="project-tags-top">
-                    <span class="project-badge badge-cyan">Applied Cryptography</span>
-                    <span class="project-badge badge-ghost">Zero-Knowledge</span>
-                    <div class="project-stack-badge">
-                      <span class="stack-dot"></span>
-                      <span>01 / 03</span>
-                    </div>
-                  </div>
-
-                  <!-- Title = Name of the Project -->
-                  <h3 class="project-title">SecureBox: Zero-Knowledge Password Manager &amp; Vault</h3>
-
-                  <!-- Description -->
-                  <p class="project-description">
-                    End-to-end zero-knowledge password manager and vault powered by FastAPI and PostgreSQL. Implements client-side Argon2id split-key derivation (MEK/MAK), authenticated AES-256-GCM encryption with cryptographic UUID Associated Data binding, challenge-response auth, and anti-enumeration defense.
-                  </p>
-
-                  <!-- Tech Stack Chips -->
-                  <div class="project-chips-wrap">
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>Python</code>
-                    </div>
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>FastAPI</code>
-                    </div>
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>PostgreSQL</code>
-                    </div>
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>Argon2id KDF</code>
-                    </div>
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>AES-256-GCM</code>
-                    </div>
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>Typer &amp; Rich</code>
-                    </div>
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>SQLAlchemy</code>
-                    </div>
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>Docker</code>
-                    </div>
-                  </div>
-
-                  <!-- Footer Meta & Actions -->
-                  <div class="project-footer">
-                    <div class="project-author-meta">
-                      <span class="meta-author">Khedr</span>
-                      <span class="meta-sep">·</span>
-                      <time class="meta-time">Top Featured</time>
-                    </div>
-                    <div class="project-links">
-                      <a href="https://github.com/khudhur-saeed/SecureBox" target="_blank" rel="noopener noreferrer" class="project-action-link" aria-label="View SecureBox on GitHub">
-                        <span>View on GitHub</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon-arrow"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-                      </a>
-                    </div>
-                  </div>
-
-                </div>
-
+          <!-- Step 1: SecureBox -->
+          <div class="flex items-start gap-4 md:gap-6 project-step-row" data-gsap-reveal>
+            <!-- Timeline Track 1 -->
+            <div class="flex flex-col items-center justify-between gap-1 project-timeline-col">
+              <span class="h-20 shrink-0" data-relingo-block="true"></span>
+              <span class="flex size-10 shrink-0 items-center justify-center rounded-full border bg-muted/50 font-mono text-lg timeline-step-num" data-relingo-block="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256" aria-hidden="true"><path d="M216,40H40A16,16,0,0,0,24,56V192a16,16,0,0,0,16,16H56v16a8,8,0,0,0,16,0V208H184v16a8,8,0,0,0,16,0V208h16a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,152H40V56H216v64H199.32a48,48,0,1,0,0,16H216v56Zm-50.16-72a16,16,0,1,0,0,16H183a32,32,0,1,1,0-16Z"></path></svg>
+              </span>
+              <span class="h-20 w-[3px] shrink-0 bg-linear-to-b from-transparent to-primary opacity-70 timeline-connector-line" data-relingo-block="true"></span>
+            </div>
+            
+            <!-- Content -->
+            <div class="flex flex-1 flex-col justify-center gap-4 px-0 project-step-content">
+              <div class="project-tags-top">
+                <span class="project-badge badge-cyan">Applied Cryptography</span>
+                <span class="project-badge badge-ghost">Zero-Knowledge</span>
               </div>
-            </article>
+              <h3 class="text-xl min-[960px]:text-2xl project-item-title" data-relingo-block="true">SecureBox: Zero-Knowledge Password Vault</h3>
+              <p class="text-sm text-muted-foreground min-[960px]:text-base project-item-desc" data-relingo-block="true">
+                End-to-end zero-knowledge password manager and vault powered by FastAPI and PostgreSQL. Implements client-side Argon2id split-key derivation (MEK/MAK), authenticated AES-256-GCM encryption with cryptographic UUID Associated Data binding, challenge-response auth, and anti-enumeration defense.
+              </p>
+              <div class="project-chips-wrap">
+                <div class="floating-chip"><span class="chip-dot"></span><code>FastAPI</code></div>
+                <div class="floating-chip"><span class="chip-dot"></span><code>PostgreSQL</code></div>
+                <div class="floating-chip"><span class="chip-dot"></span><code>Argon2id</code></div>
+                <div class="floating-chip"><span class="chip-dot"></span><code>AES-256-GCM</code></div>
+                <div class="floating-chip"><span class="chip-dot"></span><code>Docker</code></div>
+              </div>
+              <div class="project-action-wrap">
+                <a href="https://github.com/khudhur-saeed/SecureBox" target="_blank" rel="noopener noreferrer" class="project-action-link" aria-label="View SecureBox on GitHub">
+                  <span>View on GitHub</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon-arrow"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                </a>
+              </div>
+            </div>
           </div>
 
-          <!-- Project Card 2: Moda AI Clothing Store -->
-          <div class="project-sticky-card-wrap" data-card-index="1" style="--card-index: 1;">
-            <article class="project-card specular-card">
-              <!-- Full Card Click Link to GitHub Repository -->
-              <a href="https://github.com/khudhur-saeed/-clothing_store_V2_AI" target="_blank" rel="noopener noreferrer" class="project-card-link-overlay" aria-label="Open Moda Clothing Store GitHub Repository"></a>
-
-              <div class="project-grid">
-                
-                <!-- Left: Project Image -->
-                <div class="project-media-col">
-                  <div class="project-media-inner">
-                    <img src="assets/project-moda.jpg" alt="Moda AI Clothing Store & Virtual Try-On" class="project-img" loading="lazy">
-                    <div class="project-media-overlay"></div>
-                    <div class="project-status-tag">
-                      <span class="status-live-dot status-purple"></span>
-                      <span>VIRTUAL TRY-ON</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Right: Content & Description -->
-                <div class="project-content-col">
-                  <!-- Tags on Top of Title & Description -->
-                  <div class="project-tags-top">
-                    <span class="project-badge badge-purple">Full-Stack &amp; AI</span>
-                    <span class="project-badge badge-ghost">Virtual Try-On</span>
-                    <div class="project-stack-badge">
-                      <span class="stack-dot"></span>
-                      <span>02 / 03</span>
-                    </div>
-                  </div>
-
-                  <!-- Title = Name of the Project -->
-                  <h3 class="project-title">Moda: AI-Powered E-Commerce &amp; Virtual Try-On</h3>
-
-                  <!-- Description -->
-                  <p class="project-description">
-                    Full-stack intelligent fashion retail platform engineered with FastAPI and React 18 + Vite. Deeply integrates Google Gemini AI for conversational styling assistance and photo-based virtual try-on, coupled with high-speed sub-80ms semantic product search powered by an Elasticsearch cluster and PostgreSQL.
-                  </p>
-
-                  <!-- Tech Stack Chips -->
-                  <div class="project-chips-wrap">
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>FastAPI</code>
-                    </div>
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>React 18</code>
-                    </div>
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>Google Gemini AI</code>
-                    </div>
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>Elasticsearch</code>
-                    </div>
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>PostgreSQL</code>
-                    </div>
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>Tailwind CSS</code>
-                    </div>
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>Docker Compose</code>
-                    </div>
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>Cloudinary</code>
-                    </div>
-                  </div>
-
-                  <!-- Footer Meta & Actions -->
-                  <div class="project-footer">
-                    <div class="project-author-meta">
-                      <span class="meta-author">Khedr</span>
-                      <span class="meta-sep">·</span>
-                      <time class="meta-time">2026 Release</time>
-                    </div>
-                    <div class="project-links">
-                      <a href="https://github.com/khudhur-saeed/-clothing_store_V2_AI" target="_blank" rel="noopener noreferrer" class="project-action-link" aria-label="View Moda on GitHub">
-                        <span>View on GitHub</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon-arrow"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-                      </a>
-                    </div>
-                  </div>
-
-                </div>
-
+          <!-- Step 2: Moda AI Clothing Store -->
+          <div class="flex items-start gap-4 md:gap-6 project-step-row" data-gsap-reveal>
+            <!-- Timeline Track 2 -->
+            <div class="relative flex flex-col items-center justify-between gap-1 project-timeline-col">
+              <span class="absolute -top-8 mx-auto h-8 w-[3px] shrink-0 bg-primary opacity-70 timeline-connector-line" data-relingo-block="true"></span>
+              <span class="absolute -bottom-8 mx-auto h-8 w-[3px] shrink-0 bg-primary opacity-70 timeline-connector-line" data-relingo-block="true"></span>
+              <span class="h-20 w-[3px] shrink-0 bg-primary opacity-70 timeline-connector-line" data-relingo-block="true"></span>
+              <span class="flex size-10 shrink-0 items-center justify-center rounded-full border bg-muted/50 font-mono text-lg timeline-step-num" data-relingo-block="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256" aria-hidden="true"><path d="M241.57,171.2,141.33,96l23.46-17.6A8,8,0,0,0,168,72a40,40,0,1,0-80,0,8,8,0,0,0,16,0,24,24,0,0,1,47.69-3.78L123.34,89.49l-.28.21L14.43,171.2A16,16,0,0,0,24,200H232a16,16,0,0,0,9.6-28.8ZM232,184H24l104-78,104,78Z"></path></svg>
+              </span>
+              <span class="h-20 w-[3px] shrink-0 bg-primary opacity-70 timeline-connector-line" data-relingo-block="true"></span>
+            </div>
+            
+            <!-- Content -->
+            <div class="flex flex-1 flex-col justify-center gap-4 px-0 project-step-content">
+              <div class="project-tags-top">
+                <span class="project-badge badge-purple">Full-Stack &amp; AI</span>
+                <span class="project-badge badge-ghost">Virtual Try-On</span>
               </div>
-            </article>
+              <h3 class="text-xl min-[960px]:text-2xl project-item-title" data-relingo-block="true">Moda: AI E-Commerce &amp; Virtual Try-On</h3>
+              <p class="text-sm text-muted-foreground min-[960px]:text-base project-item-desc" data-relingo-block="true">
+                Full-stack intelligent fashion retail platform engineered with FastAPI and React 18 + Vite. Deeply integrates Google Gemini AI for conversational styling assistance and photo-based virtual try-on, coupled with high-speed sub-80ms semantic product search powered by an Elasticsearch cluster and PostgreSQL.
+              </p>
+              <div class="project-chips-wrap">
+                <div class="floating-chip"><span class="chip-dot"></span><code>FastAPI</code></div>
+                <div class="floating-chip"><span class="chip-dot"></span><code>React 18</code></div>
+                <div class="floating-chip"><span class="chip-dot"></span><code>Gemini AI</code></div>
+                <div class="floating-chip"><span class="chip-dot"></span><code>Elasticsearch</code></div>
+                <div class="floating-chip"><span class="chip-dot"></span><code>PostgreSQL</code></div>
+              </div>
+              <div class="project-action-wrap">
+                <a href="https://github.com/khudhur-saeed/-clothing_store_V2_AI" target="_blank" rel="noopener noreferrer" class="project-action-link" aria-label="View Moda on GitHub">
+                  <span>View on GitHub</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon-arrow"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                </a>
+              </div>
+            </div>
           </div>
 
-          <!-- Project Card 3: PDF Chat -->
-          <div class="project-sticky-card-wrap" data-card-index="2" style="--card-index: 2;">
-            <article class="project-card specular-card">
-              <!-- Full Card Click Link to GitHub Repository -->
-              <a href="https://github.com/khudhur-saeed/pdf_chat" target="_blank" rel="noopener noreferrer" class="project-card-link-overlay" aria-label="Open PDF Chat GitHub Repository"></a>
-
-              <div class="project-grid">
-                
-                <!-- Left: Project Image -->
-                <div class="project-media-col">
-                  <div class="project-media-inner">
-                    <img src="assets/project-pdfchat.jpg" alt="PDF Chat Intelligent RAG Document Assistant" class="project-img" loading="lazy">
-                    <div class="project-media-overlay"></div>
-                    <div class="project-status-tag">
-                      <span class="status-live-dot status-emerald"></span>
-                      <span>PRODUCTION RAG</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Right: Content & Description -->
-                <div class="project-content-col">
-                  <!-- Tags on Top of Title & Description -->
-                  <div class="project-tags-top">
-                    <span class="project-badge badge-emerald">RAG &amp; Document AI</span>
-                    <span class="project-badge badge-ghost">Multi-Language</span>
-                    <div class="project-stack-badge">
-                      <span class="stack-dot"></span>
-                      <span>03 / 03</span>
-                    </div>
-                  </div>
-
-                  <!-- Title = Name of the Project -->
-                  <h3 class="project-title">PDF Chat: Intelligent RAG Document Assistant</h3>
-
-                  <!-- Description -->
-                  <p class="project-description">
-                    Production-ready retrieval-augmented generation (RAG) platform enabling intelligent multi-document conversations. Powered by LangChain, Google Gemini API, Chroma vector database, and Unstructured PDF text extraction with full RTL Arabic, English, and Turkish multi-language support.
-                  </p>
-
-                  <!-- Tech Stack Chips -->
-                  <div class="project-chips-wrap">
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>FastAPI</code>
-                    </div>
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>LangChain</code>
-                    </div>
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>Google Gemini API</code>
-                    </div>
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>Chroma Vector DB</code>
-                    </div>
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>Unstructured</code>
-                    </div>
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>React 18</code>
-                    </div>
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>TypeScript</code>
-                    </div>
-                    <div class="floating-chip">
-                      <span class="chip-dot"></span>
-                      <code>shadcn/ui</code>
-                    </div>
-                  </div>
-
-                  <!-- Footer Meta & Actions -->
-                  <div class="project-footer">
-                    <div class="project-author-meta">
-                      <span class="meta-author">Khedr</span>
-                      <span class="meta-sep">·</span>
-                      <time class="meta-time">2026 Release</time>
-                    </div>
-                    <div class="project-links">
-                      <a href="https://github.com/khudhur-saeed/pdf_chat" target="_blank" rel="noopener noreferrer" class="project-action-link" aria-label="View PDF Chat on GitHub">
-                        <span>View on GitHub</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon-arrow"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-                      </a>
-                    </div>
-                  </div>
-
-                </div>
-
+          <!-- Step 3: PDF Chat -->
+          <div class="flex items-start gap-4 md:gap-6 project-step-row" data-gsap-reveal>
+            <!-- Timeline Track 3 -->
+            <div class="flex flex-col items-center justify-between gap-1 project-timeline-col">
+              <span class="h-20 w-[3px] shrink-0 bg-linear-to-t from-transparent to-primary opacity-70 timeline-connector-line" data-relingo-block="true"></span>
+              <span class="flex size-10 shrink-0 items-center justify-center rounded-full border bg-muted/50 font-mono text-lg timeline-step-num" data-relingo-block="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256" aria-hidden="true"><path d="M216,48H40A16,16,0,0,0,24,64V224a15.84,15.84,0,0,0,9.25,14.5A16.05,16.05,0,0,0,40,240a15.89,15.89,0,0,0,10.25-3.78l.09-.07L83,208H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48ZM40,224h0ZM216,192H80a8,8,0,0,0-5.23,1.95L40,224V64H216Z"></path></svg>
+              </span>
+              <span class="h-20 shrink-0" data-relingo-block="true"></span>
+            </div>
+            
+            <!-- Content -->
+            <div class="flex flex-1 flex-col justify-center gap-4 px-0 project-step-content">
+              <div class="project-tags-top">
+                <span class="project-badge badge-emerald">RAG &amp; Document AI</span>
+                <span class="project-badge badge-ghost">Multi-Language</span>
               </div>
-            </article>
+              <h3 class="text-xl min-[960px]:text-2xl project-item-title" data-relingo-block="true">PDF Chat: Intelligent RAG Document Assistant</h3>
+              <p class="text-sm text-muted-foreground min-[960px]:text-base project-item-desc" data-relingo-block="true">
+                Production-ready retrieval-augmented generation (RAG) platform enabling intelligent multi-document conversations. Powered by LangChain, Google Gemini API, Chroma vector database, and Unstructured PDF text extraction with full RTL Arabic, English, and Turkish multi-language support.
+              </p>
+              <div class="project-chips-wrap">
+                <div class="floating-chip"><span class="chip-dot"></span><code>FastAPI</code></div>
+                <div class="floating-chip"><span class="chip-dot"></span><code>LangChain</code></div>
+                <div class="floating-chip"><span class="chip-dot"></span><code>Gemini API</code></div>
+                <div class="floating-chip"><span class="chip-dot"></span><code>Chroma DB</code></div>
+                <div class="floating-chip"><span class="chip-dot"></span><code>React 18</code></div>
+              </div>
+              <div class="project-action-wrap">
+                <a href="https://github.com/khudhur-saeed/pdf_chat" target="_blank" rel="noopener noreferrer" class="project-action-link" aria-label="View PDF Chat on GitHub">
+                  <span>View on GitHub</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon-arrow"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                </a>
+              </div>
+            </div>
           </div>
 
         </div>
-
       </div>
     </section>
 
