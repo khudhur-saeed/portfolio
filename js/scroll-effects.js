@@ -20,15 +20,16 @@
   }
 
   onDOMReady(function () {
-    /* Check reduced-motion preference */
+    /* Check reduced-motion preference & device pointer */
     var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
 
     /* -----------------------------------------------------------------------
-       1. Lenis Smooth Scrolling Init (with fallback to native scroll)
+       1. Lenis Smooth Scrolling Init (Desktop Mouse Wheel Only; Native on Touch)
     ----------------------------------------------------------------------- */
     var lenis = null;
 
-    if (!prefersReducedMotion && typeof Lenis !== 'undefined') {
+    if (!prefersReducedMotion && !isTouchDevice && typeof Lenis !== 'undefined') {
       try {
         lenis = new Lenis({
           duration: 1.2,
@@ -105,6 +106,9 @@
               return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
             },
           });
+        } else {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth' });
         }
       });
     });

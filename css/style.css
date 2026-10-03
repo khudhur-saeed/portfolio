@@ -583,7 +583,10 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   display: flex;
   align-items: center;
   box-shadow: 0 4px 20px var(--shadow-color);
-  transition: var(--theme-transition);
+  transition: background 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              var(--theme-transition);
 }
 
 .navbar {
@@ -2986,6 +2989,33 @@ h1, h2, h3, h4, h5, h6, .hero-title {
     padding-left: 1.25rem !important;
     padding-right: 1.25rem !important;
   }
+
+  /* Mobile Performance: Offscreen content visibility to skip offscreen layout cost */
+  .about-section,
+  .skills-section,
+  .projects-section,
+  .contact-section {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 650px;
+  }
+
+  /* Mobile Performance: Lighter blur radius to dramatically cut GPU fill overhead */
+  .hero-section.mode-cinematic .pc-behind {
+    filter: blur(22px) !important;
+  }
+
+  .navbar-header,
+  .navbar-header.mode-cinematic,
+  body.mode-cinematic .navbar-header {
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+  }
+
+  .hero-intro,
+  .hero-section.mode-cinematic .hero-intro {
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+  }
 }
 
 @media (max-width: 480px) {
@@ -3031,6 +3061,42 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   width: 100%;
   height: 100%;
   display: block;
+}
+
+/* ==========================================================================
+   Navbar Cinematic Fire Effect Synchronization
+   ========================================================================== */
+
+.navbar-header.mode-cinematic,
+body.mode-cinematic .navbar-header {
+  background: rgba(8, 8, 12, 0.84) !important;
+  backdrop-filter: blur(20px) saturate(1.4) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.4) !important;
+  border-bottom: 1px solid rgba(244, 63, 94, 0.42) !important;
+  box-shadow: 
+    0 4px 30px rgba(0, 0, 0, 0.75), 
+    0 0 35px rgba(244, 63, 94, 0.22), 
+    0 0 65px rgba(255, 112, 20, 0.14) !important;
+}
+
+.navbar-header.mode-cinematic .nav-link,
+body.mode-cinematic .navbar-header .nav-link {
+  color: rgba(255, 240, 243, 0.9) !important;
+}
+
+.navbar-header.mode-cinematic .nav-link:hover,
+body.mode-cinematic .navbar-header .nav-link:hover {
+  color: #ffffff !important;
+  background-color: rgba(244, 63, 94, 0.16) !important;
+  border-color: rgba(255, 112, 20, 0.45) !important;
+  box-shadow: 0 0 16px rgba(244, 63, 94, 0.4), 0 0 30px rgba(255, 112, 20, 0.2) !important;
+}
+
+.navbar-header.mode-cinematic .separator-dot,
+body.mode-cinematic .navbar-header .separator-dot {
+  background: #f43f5e !important;
+  box-shadow: 0 0 8px #f43f5e, 0 0 14px rgba(255, 112, 20, 0.6) !important;
+  opacity: 0.95 !important;
 }
 
 /* Dim letter glitch when cinematic mode is active */
