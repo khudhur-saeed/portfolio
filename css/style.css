@@ -2970,6 +2970,14 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 }
 
 @media (max-width: 768px) {
+  :root {
+    --pullcord-right: 1.25rem;
+  }
+
+  .pullcord {
+    right: var(--pullcord-right, 1.25rem) !important;
+  }
+
   .hero-section,
   .about-section,
   .skills-section,
@@ -3371,7 +3379,7 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   40%, 60% { transform: translate(-50%, -50%) translateZ(32px) translate3d(5px, 0, 0); }
 }
 
-@media (hover: none) {
+@media (hover: none), (pointer: coarse), (max-width: 968px) {
   .pc-play-btn-overlay {
     opacity: 0.95 !important;
     pointer-events: auto !important;

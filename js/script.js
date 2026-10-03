@@ -8,6 +8,25 @@
 (function () {
   'use strict';
 
+  /* Safe LocalStorage Helper with in-memory fallback for Android Incognito / WebViews */
+  const memoryStore = {};
+  const safeStorage = {
+    get: (key, fallback = null) => {
+      try {
+        const val = localStorage.getItem(key);
+        return val !== null ? val : (key in memoryStore ? memoryStore[key] : fallback);
+      } catch (_) {
+        return key in memoryStore ? memoryStore[key] : fallback;
+      }
+    },
+    set: (key, val) => {
+      memoryStore[key] = String(val);
+      try {
+        localStorage.setItem(key, val);
+      } catch (_) {}
+    }
+  };
+
   /* =========================================================================
      ProfileCard Component (React Bits - Optimized with Idle Sleep)
      ========================================================================= */
@@ -463,6 +482,9 @@
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (!AudioCtx) return;
       const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') {
+        try { ctx.resume(); } catch (_) {}
+      }
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
@@ -684,16 +706,35 @@
     }
 
     onPanStart(e) {
-      if (e.button !== 0 && e.pointerType === 'mouse') return;
+      if (e.button !== undefined && e.button !== 0 && e.pointerType === 'mouse') return;
+      
       this.dragging = true;
-      this.didDrag = true;
+      this.hasMoved = false;
+      this.didDrag = false;
       this.clicked = false;
       this.dragStartPos = { x: e.clientX, y: e.clientY };
 
+      const pointerId = e.pointerId;
+      if (this.knobBtn && pointerId !== undefined && typeof this.knobBtn.setPointerCapture === 'function') {
+        try {
+          this.knobBtn.setPointerCapture(pointerId);
+        } catch (_) {}
+      }
+
       const onPointerMove = (evt) => {
         if (!this.dragging) return;
-        const rx = evt.clientX - this.dragStartPos.x;
-        const ry = REST_Y + (evt.clientY - this.dragStartPos.y);
+        const dx = evt.clientX - this.dragStartPos.x;
+        const dy = evt.clientY - this.dragStartPos.y;
+        
+        if (!this.hasMoved && Math.hypot(dx, dy) > 4) {
+          this.hasMoved = true;
+          this.didDrag = true;
+        }
+
+        if (!this.hasMoved) return;
+
+        const rx = dx;
+        const ry = REST_Y + dy;
         const dist = Math.hypot(rx, ry) || 0.0001;
         const maxD = REST_Y + this.config.stretchMax;
         const k = dist > maxD ? maxD / dist : 1;
@@ -706,8 +747,31 @@
         }
       };
 
-      const onPointerUp = () => {
+      const onPointerUp = (evt) => {
+        if (!this.dragging) return;
         this.dragging = false;
+
+        if (this.knobBtn && pointerId !== undefined && typeof this.knobBtn.releasePointerCapture === 'function') {
+          try {
+            this.knobBtn.releasePointerCapture(pointerId);
+          } catch (_) {}
+        }
+
+        window.removeEventListener('pointermove', onPointerMove);
+        window.removeEventListener('pointerup', onPointerUp);
+        window.removeEventListener('pointercancel', onPointerUp);
+
+        // If the user tapped without dragging, trigger smooth toggle immediately:
+        if (!this.hasMoved && !this.clicked) {
+          this.clicked = true;
+          this.didDrag = true;
+          this.scriptedPull();
+          setTimeout(() => {
+            this.didDrag = false;
+          }, 350);
+          return;
+        }
+
         const pts = this.nodes;
         const p = pts[pts.length - 1];
         const vx = p.x - p.ox;
@@ -718,16 +782,13 @@
           p.ox = p.x - vx * k;
           p.oy = p.y - vy * k;
         }
-        window.removeEventListener('pointermove', onPointerMove);
-        window.removeEventListener('pointerup', onPointerUp);
-        window.removeEventListener('pointercancel', onPointerUp);
         this.wake();
-        requestAnimationFrame(() => {
+        setTimeout(() => {
           this.didDrag = false;
-        });
+        }, 200);
       };
 
-      window.addEventListener('pointermove', onPointerMove);
+      window.addEventListener('pointermove', onPointerMove, { passive: false });
       window.addEventListener('pointerup', onPointerUp);
       window.addEventListener('pointercancel', onPointerUp);
       this.wake();
@@ -735,7 +796,6 @@
 
     onClick(e) {
       if (this.didDrag) return;
-      if (e.detail === 0) return;
       this.scriptedPull();
     }
 
@@ -2357,19 +2417,19 @@ khedr@dev:~$ echo $PASSION
       if (this.isPlaying || this.isStarting || !this.audioEl) return;
       this.isStarting = true;
 
-      // 1. Strict Pre-flight Check: If audio is missing, has errors, or has no supported source, do NOT apply any effects!
-      if (
-        this.audioMissing ||
-        (this.audioEl.error && this.audioEl.error.code !== 0) ||
-        this.audioEl.networkState === HTMLMediaElement.NETWORK_NO_SOURCE
-      ) {
+      // Check for explicit media errors
+      if (this.audioEl.error && this.audioEl.error.code !== 0) {
+        this.audioMissing = true;
+      }
+
+      if (this.audioMissing) {
         console.warn('Cinematic audio file missing or failed to load. Aborting without applying visual effects.');
         this.showAudioMissingFeedback();
         this.isStarting = false;
         return;
       }
 
-      // Early resume of Web Audio context synchronously during user click gesture
+      // 1. Synchronously unlock and resume Web Audio context within direct user gesture
       try {
         if (!this.audioCtx) {
           const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -2380,40 +2440,25 @@ khedr@dev:~$ echo $PASSION
         }
       } catch (e) {}
 
-      // 2. Strict Audio Playback Verification & Seek Synchronization:
+      // 2. Synchronous rewind & play initiation (CRITICAL FOR MOBILE TRANSIENT ACTIVATION)
       try {
-        // Await seek completion if audio is not already at frame 0 (fixes replay lag)
-        if (Math.abs(this.audioEl.currentTime) > 0.005) {
-          await new Promise((resolve) => {
-            const onSeeked = () => {
-              this.audioEl.removeEventListener('seeked', onSeeked);
-              resolve();
-            };
-            this.audioEl.addEventListener('seeked', onSeeked, { once: true });
-            this.audioEl.currentTime = 0;
-            setTimeout(onSeeked, 150); // Fallback safeguard
-          });
-        } else {
-          this.audioEl.currentTime = 0;
-        }
+        this.audioEl.currentTime = 0;
+      } catch (_) {}
 
-        // Wait for the audio engine to ACTUALLY emit acoustic sound ('playing' event)
-        const onActualPlaybackStart = new Promise((resolve) => {
-          const onPlaying = () => {
-            this.audioEl.removeEventListener('playing', onPlaying);
-            resolve();
-          };
-          this.audioEl.addEventListener('playing', onPlaying, { once: true });
-          setTimeout(onPlaying, 250); // Fallback safeguard
-        });
+      let playPromise;
+      try {
+        playPromise = this.audioEl.play();
+      } catch (err) {
+        console.warn('Audio play() invocation error:', err);
+      }
 
-        const playPromise = this.audioEl.play();
+      // 3. Await playback start
+      try {
         if (playPromise !== undefined) {
           await playPromise;
         }
-        await onActualPlaybackStart;
       } catch (audioErr) {
-        console.warn('Audio playback failed or audio source is missing:', audioErr);
+        console.warn('Audio playback failed or was restricted by device policy:', audioErr);
         this.audioMissing = true;
         this.showAudioMissingFeedback();
         this.stopCinematicMode();
@@ -2421,17 +2466,20 @@ khedr@dev:~$ echo $PASSION
         return;
       }
 
-      // If audio is paused or has invalid duration, audio is missing/failed: do NOT apply effects
-      if (this.audioEl.paused || isNaN(this.audioEl.duration) || this.audioEl.duration === 0) {
-        console.warn('Audio is not playing or duration is invalid. Aborting cinematic activation.');
-        this.audioMissing = true;
-        this.showAudioMissingFeedback();
-        this.stopCinematicMode();
-        this.isStarting = false;
-        return;
+      // Check if paused after playPromise (in case device paused immediately)
+      if (this.audioEl.paused) {
+        // Short grace period on mobile for media buffering
+        await new Promise((r) => setTimeout(r, 120));
+        if (this.audioEl.paused) {
+          console.warn('Audio is paused. Aborting cinematic activation.');
+          this.showAudioMissingFeedback();
+          this.stopCinematicMode();
+          this.isStarting = false;
+          return;
+        }
       }
 
-      // ONLY AFTER audio is 100% playing, apply cinematic state & visual effects:
+      // 4. Activate Visual Effects & Cinematic Mode
       this.isPlaying = true;
       this.isStarting = false;
 
@@ -2441,13 +2489,13 @@ khedr@dev:~$ echo $PASSION
       this.impactState = { active: false, startTime: 0, maxIntensity: 0, intensity: 0, progress: 0, duration: 0.8 };
       if (this.kineticWrapper) this.kineticWrapper.innerHTML = '';
 
-      // 3. Transition UI
+      // Transition UI
       this.heroSection?.classList.add('mode-cinematic');
       this.auroraContainer?.classList.add('is-active');
       this.playBtn?.classList.add('is-hidden');
       if (this.statusBadge) this.statusBadge.textContent = 'Playing...';
 
-      // 4. Connect Web Audio API Analyser
+      // 5. Connect Web Audio API Analyser
       try {
         if (this.audioCtx && !this.analyser) {
           this.analyser = this.audioCtx.createAnalyser();
@@ -2462,10 +2510,10 @@ khedr@dev:~$ echo $PASSION
           }
         }
       } catch (audioCtxErr) {
-        console.warn('Web Audio API analyzer fallback:', audioCtxErr);
+        console.warn('Web Audio API analyzer notice (using synthetic fallback waveform):', audioCtxErr);
       }
 
-      // 5. Initialize PredictiveArc WebGL Shader Loop
+      // 6. Initialize PredictiveArc WebGL Shader Loop
       try {
         if (this.initWebGL()) {
           this.lastTime = performance.now();
@@ -2477,7 +2525,7 @@ khedr@dev:~$ echo $PASSION
         console.warn('PredictiveArc WebGL error:', glErr);
       }
 
-      // 6. Initial Frame Evaluation
+      // 7. Initial Frame Evaluation
       this.handleTimeUpdate();
     }
 
@@ -2519,21 +2567,28 @@ khedr@dev:~$ echo $PASSION
     }
 
     initEvents() {
-      // Monitor source load errors immediately
+      // Monitor source load errors safely without falsely marking missing before mobile interaction
       const audioSources = this.audioEl.querySelectorAll('source');
       let failedSources = 0;
       audioSources.forEach(source => {
         source.addEventListener('error', () => {
           failedSources++;
-          if (failedSources >= audioSources.length || (this.audioEl && this.audioEl.networkState === HTMLMediaElement.NETWORK_NO_SOURCE)) {
+          if (failedSources >= audioSources.length && this.audioEl && this.audioEl.error) {
             this.audioMissing = true;
-            console.warn('Audio source failed to load; audio marked missing.');
+            console.warn('All audio sources failed to load.');
           }
         });
       });
 
+      let lastTriggerTime = 0;
       const handleTrigger = (e) => {
-        if (e) {
+        const now = Date.now();
+        if (now - lastTriggerTime < 400) {
+          if (e && e.cancelable) e.preventDefault();
+          return;
+        }
+        lastTriggerTime = now;
+        if (e && e.cancelable) {
           e.preventDefault();
           e.stopPropagation();
         }
@@ -2541,7 +2596,7 @@ khedr@dev:~$ echo $PASSION
       };
 
       this.playBtn.addEventListener('click', handleTrigger);
-      this.playBtn.addEventListener('touchend', handleTrigger);
+      this.playBtn.addEventListener('touchend', handleTrigger, { passive: false });
 
       this.audioEl.addEventListener('timeupdate', () => this.handleTimeUpdate());
       this.audioEl.addEventListener('ended', () => this.stopCinematicMode());
@@ -2560,79 +2615,132 @@ khedr@dev:~$ echo $PASSION
   }
 
   // App Initialization on DOM Ready (with immediate fallback if already ready)
+  // App Initialization on DOM Ready with isolated safety boundaries
   const initApp = () => {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
+    // 0. Theme initialization
+    let savedTheme = 'dark';
+    try {
+      savedTheme = safeStorage.get('theme', 'dark');
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    } catch (e) {
+      console.warn('Theme init notice:', e);
+    }
     const isLightMode = savedTheme === 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
 
     // 1. Initialize LetterGlitch Background with 50% opacity & color matching
-    const glitchCanvas = document.getElementById('glitchCanvas');
     let glitchInstance = null;
-    if (glitchCanvas) {
-      glitchInstance = new LetterGlitch(glitchCanvas, {
-        glitchSpeed: 70,
-        smooth: true,
-        isLight: isLightMode
-      });
+    try {
+      const glitchCanvas = document.getElementById('glitchCanvas');
+      if (glitchCanvas) {
+        glitchInstance = new LetterGlitch(glitchCanvas, {
+          glitchSpeed: 70,
+          smooth: true,
+          isLight: isLightMode
+        });
+      }
+    } catch (e) {
+      console.warn('LetterGlitch init notice:', e);
     }
 
     // 2. Initialize PullCord Ceiling Theme Switcher
-    const pullcordEl = document.getElementById('pullcord');
-    if (pullcordEl) {
-      new PullCordComponent(pullcordEl, {
-        pulled: isLightMode,
-        onPull: (isPulled) => {
-          const nextTheme = isPulled ? 'light' : 'dark';
-          document.documentElement.setAttribute('data-theme', nextTheme);
-          localStorage.setItem('theme', nextTheme);
+    try {
+      const pullcordEl = document.getElementById('pullcord');
+      if (pullcordEl) {
+        new PullCordComponent(pullcordEl, {
+          pulled: isLightMode,
+          onPull: (isPulled) => {
+            const nextTheme = isPulled ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', nextTheme);
+            safeStorage.set('theme', nextTheme);
 
-          // Update LetterGlitch palette in real-time
-          if (glitchInstance) {
-            glitchInstance.setTheme(isPulled);
+            // Update LetterGlitch palette in real-time
+            if (glitchInstance) {
+              try {
+                glitchInstance.setTheme(isPulled);
+              } catch (_) {}
+            }
           }
-        }
-      });
+        });
+      }
+    } catch (e) {
+      console.warn('PullCord init notice:', e);
     }
 
     // 3. Initialize ProfileCard 3D Tilt Component
-    const profileCardEl = document.getElementById('profileCard');
-    if (profileCardEl) {
-      new ProfileCardComponent(profileCardEl, {
-        enableTilt: true
-      });
+    try {
+      const profileCardEl = document.getElementById('profileCard');
+      if (profileCardEl) {
+        new ProfileCardComponent(profileCardEl, {
+          enableTilt: true
+        });
+      }
+    } catch (e) {
+      console.warn('ProfileCard init notice:', e);
     }
 
     // 4. Initialize Cinematic Hero Controller (SoftAurora Audio-Reactive + Kinetic Text)
-    new CinematicHeroController();
+    try {
+      new CinematicHeroController();
+    } catch (e) {
+      console.warn('CinematicHeroController init notice:', e);
+    }
 
     // 5. Initialize ParallaxLayers on About Section
-    const aboutParallaxEl = document.getElementById('aboutParallax');
-    if (aboutParallaxEl) {
-      new ParallaxLayers(aboutParallaxEl);
+    try {
+      const aboutParallaxEl = document.getElementById('aboutParallax');
+      if (aboutParallaxEl) {
+        new ParallaxLayers(aboutParallaxEl);
+      }
+    } catch (e) {
+      console.warn('ParallaxLayers init notice:', e);
     }
 
     // 6. Initialize Magic UI Terminal Animation
-    const terminalEl = document.getElementById('terminalWindow');
-    if (terminalEl) {
-      new TerminalAnimationController(terminalEl);
+    try {
+      const terminalEl = document.getElementById('terminalWindow');
+      if (terminalEl) {
+        new TerminalAnimationController(terminalEl);
+      }
+    } catch (e) {
+      console.warn('TerminalAnimationController init notice:', e);
     }
 
     // 7. Initialize Modern Interactive Stack Section
-    new StackSectionController('#stackInteractiveContainer');
+    try {
+      new StackSectionController('#stackInteractiveContainer');
+    } catch (e) {
+      console.warn('StackSectionController init notice:', e);
+    }
 
     // 8. Initialize Specular Effect across all Cards (React Bits SpecularButton adaptation)
-    new SpecularCardController('.specular-card');
+    try {
+      new SpecularCardController('.specular-card');
+    } catch (e) {
+      console.warn('SpecularCardController init notice:', e);
+    }
 
     // 9. Initialize Smooth Scroll Deck Stacking for Featured Projects
-    new ProjectStackScrollController();
+    try {
+      new ProjectStackScrollController();
+    } catch (e) {
+      console.warn('ProjectStackScrollController init notice:', e);
+    }
 
     // 10. Initialize Interactive Physics Chips for Contact Section
-    new ContactPhysicsChips('#physicsContainer');
+    try {
+      new ContactPhysicsChips('#physicsContainer');
+    } catch (e) {
+      console.warn('ContactPhysicsChips init notice:', e);
+    }
 
     // 11. Update Footer Copyright Year Dynamically
-    const footerYearEl = document.getElementById('footerYear');
-    if (footerYearEl) {
-      footerYearEl.textContent = new Date().getFullYear();
+    try {
+      const footerYearEl = document.getElementById('footerYear');
+      if (footerYearEl) {
+        footerYearEl.textContent = new Date().getFullYear();
+      }
+    } catch (e) {
+      console.warn('Footer year notice:', e);
     }
   };
 
