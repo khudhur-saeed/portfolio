@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
@@ -126,9 +126,9 @@
 
       <!-- Hidden Audio Element for Cinematic Mode -->
       <audio id="heroCinematicAudio" preload="auto">
-        <source src="assets/cinematic-audio.mp3" type="audio/mp3">
-        <source src="assets/cinematic-audio.webm" type="audio/webm">
-        <source src="i am not like everybody else.webm" type="audio/webm">
+        <source src="assets/audio/cinematic-audio.mp3" type="audio/mp3">
+        <source src="assets/audio/cinematic-audio.webm" type="audio/webm">
+        <source src="assets/audio/cinematic-video.webm" type="audio/webm">
       </audio>
 
       <div class="hero-container">
@@ -182,7 +182,7 @@
                     <div class="pc-avatar-content">
                       <img 
                         class="avatar" 
-                        src="assets/user_photo.jpg" 
+                        src="assets/images/user_photo.jpg" 
                         alt="Khedr Portrait Photo" 
                         loading="eager"
                       />
@@ -206,7 +206,7 @@
                     <div class="pc-user-info">
                       <div class="pc-user-details">
                         <div class="pc-mini-avatar">
-                          <img src="assets/user_photo.jpg" alt="Mini Avatar" />
+                          <img src="assets/images/user_photo.jpg" alt="Mini Avatar" />
                         </div>
                           <div class="pc-user-text">
                             <div class="pc-handle">@khedr</div>
@@ -785,7 +785,7 @@
 
           <div class="contact-actions-row">
             <!-- Download CV Button -->
-            <a href="assets/khedr_mohammed_cv.pdf" download="khedr_mohammed_cv.pdf" class="btn-cv-download" id="downloadCvBtn" aria-label="Download My CV">
+            <a href="assets/docs/khedr_mohammed_cv.pdf" download="khedr_mohammed_cv.pdf" class="btn-cv-download" id="downloadCvBtn" aria-label="Download My CV">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="7 10 12 15 17 10"></polyline>
@@ -946,13 +946,13 @@
   </footer>
 
   <!-- Core Libraries (Local for zero network failures & offline reliability) -->
-  <script src="assets/matter.min.js"></script>
-  <script src="assets/gsap.min.js"></script>
-  <script src="assets/ScrollTrigger.min.js"></script>
-  <script src="assets/lenis.min.js"></script>
+  <script src="assets/libs/matter.min.js"></script>
+  <script src="assets/libs/gsap.min.js"></script>
+  <script src="assets/libs/ScrollTrigger.min.js"></script>
+  <script src="assets/libs/lenis.min.js"></script>
 
   <!-- Application Logic & Scroll Effects -->
-  <script src="script.js"></script>
-  <script src="scroll-effects.js"></script>
+  <script src="js/script.js"></script>
+  <script src="js/scroll-effects.js"></script>
 </body>
 </html>
