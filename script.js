@@ -1768,6 +1768,441 @@ khedr@dev:~$ echo $PASSION
     }
   }
 
+  /* =========================================================================
+     Cinematic Hero Controller (Audio-Reactive SoftAurora + Kinetic Subtitles)
+     ========================================================================= */
+
+  class CinematicHeroController {
+    constructor() {
+      this.playBtn = document.getElementById('pcPlayBtn');
+      this.audioEl = document.getElementById('heroCinematicAudio');
+      this.auroraContainer = document.getElementById('heroAurora');
+      this.auroraCanvas = document.getElementById('auroraCanvas');
+      this.heroSection = document.getElementById('hero');
+      this.kineticWrapper = document.getElementById('kineticTextWrapper');
+      this.statusBadge = document.querySelector('.pc-avatar-content .pc-status');
+      this.reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (!this.playBtn || !this.audioEl || !this.auroraCanvas) return;
+
+      this.subtitles = [
+        { start: 0.0, end: 2.0, text: "I am not like everybody else." },
+        { start: 2.0, end: 5.0, text: "I don't want to be like everybody else." },
+        { start: 5.0, end: 7.0, text: "I have something inside burning." },
+        { start: 7.0, end: 10.0, text: "I'm supposed to be something different." },
+        { start: 10.0, end: 12.75, text: "I have to be something different!" }
+      ];
+
+      this.isPlaying = false;
+      this.currentSubtitleIndex = -1;
+      this.audioCtx = null;
+      this.analyser = null;
+      this.sourceNode = null;
+      this.dataArray = null;
+      this.rafId = null;
+
+      this.audioValues = { volume: 0, bass: 0, mid: 0 };
+
+      // WebGL Aurora State
+      this.gl = null;
+      this.program = null;
+      this.uniforms = {};
+      this.baseSpeed = 0.45;
+      this.baseNoiseAmp = 0.55;
+      this.curSpeed = 0.45;
+      this.curNoiseAmp = 0.55;
+      this.curGlow = 0.0;
+
+      this.initEvents();
+    }
+
+    initWebGL() {
+      if (this.gl) return true;
+      const canvas = this.auroraCanvas;
+      const gl = canvas.getContext('webgl', { alpha: true, antialias: true, powerPreference: 'high-performance' })
+              || canvas.getContext('experimental-webgl');
+      if (!gl) return false;
+      this.gl = gl;
+
+      const vsSource = `
+        attribute vec2 position;
+        varying vec2 vUv;
+        void main() {
+          vUv = position * 0.5 + 0.5;
+          gl_Position = vec4(position, 0.0, 1.0);
+        }
+      `;
+
+      const fsSource = `
+        precision highp float;
+        varying vec2 vUv;
+        uniform float uTime;
+        uniform vec2 uResolution;
+        uniform vec3 uColor1;
+        uniform vec3 uColor2;
+        uniform vec3 uColor3;
+        uniform float uSpeed;
+        uniform float uNoiseAmp;
+        uniform float uAudioGlow;
+
+        vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec3 permute(vec3 x) { return mod289(((x * 34.0) + 1.0) * x); }
+
+        float snoise(vec2 v) {
+          const vec4 C = vec4(0.211324865405187, 0.366025403784439,
+                             -0.577350269189626, 0.024390243902439);
+          vec2 i  = floor(v + dot(v, C.yy));
+          vec2 x0 = v -   i + dot(i, C.xx);
+          vec2 i1;
+          i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+          vec4 x12 = x0.xyxy + C.xxzz;
+          x12.xy -= i1;
+          i = mod289(i);
+          vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+          vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0);
+          m = m * m;
+          m = m * m;
+          vec3 x = 2.0 * fract(p * C.www) - 1.0;
+          vec3 h = abs(x) - 0.5;
+          vec3 ox = floor(x + 0.5);
+          vec3 a0 = x - ox;
+          m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);
+          vec3 g;
+          g.x  = a0.x  * x0.x  + h.x  * x0.y;
+          g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+          return 130.0 * dot(m, g);
+        }
+
+        void main() {
+          vec2 st = gl_FragCoord.xy / uResolution.xy;
+          st.x *= uResolution.x / uResolution.y;
+
+          float t = uTime * uSpeed;
+          float n1 = snoise(vec2(st.x * 1.35 + t * 0.22, st.y * 1.7 - t * 0.14)) * uNoiseAmp;
+          float n2 = snoise(vec2(st.x * 2.15 - t * 0.32, st.y * 2.4 + t * 0.22 + n1)) * (uNoiseAmp * 0.65);
+          float n3 = snoise(vec2(st.x * 3.8 + t * 0.45, st.y * 3.6 - n2)) * 0.22;
+
+          float wave = smoothstep(0.0, 1.0, 0.5 + 0.5 * (n1 + n2 + n3));
+          float verticalMask = smoothstep(0.05, 0.9, 1.0 - vUv.y * 0.75);
+
+          vec3 color = mix(uColor1, uColor2, clamp(wave + n1 * 0.5, 0.0, 1.0));
+          color = mix(color, uColor3, clamp(n2 * 1.35, 0.0, 1.0));
+
+          float brightness = (0.75 + uAudioGlow * 1.35) * verticalMask;
+          vec3 finalColor = color * brightness;
+
+          gl_FragColor = vec4(finalColor, 0.88 * verticalMask);
+        }
+      `;
+
+      const compile = (type, src) => {
+        const s = gl.createShader(type);
+        gl.shaderSource(s, src);
+        gl.compileShader(s);
+        if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+          console.warn('Shader compile warning:', gl.getShaderInfoLog(s));
+        }
+        return s;
+      };
+
+      try {
+        const vs = compile(gl.VERTEX_SHADER, vsSource);
+        const fs = compile(gl.FRAGMENT_SHADER, fsSource);
+        const prog = gl.createProgram();
+        gl.attachShader(prog, vs);
+        gl.attachShader(prog, fs);
+        gl.linkProgram(prog);
+
+        if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+          console.warn('Program link warning:', gl.getProgramInfoLog(prog));
+          return false;
+        }
+
+        gl.useProgram(prog);
+        this.program = prog;
+
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(
+          gl.ARRAY_BUFFER,
+          new Float32Array([
+            -1.0, -1.0,
+             1.0, -1.0,
+            -1.0,  1.0,
+            -1.0,  1.0,
+             1.0, -1.0,
+             1.0,  1.0,
+          ]),
+          gl.STATIC_DRAW
+        );
+
+        const posAttr = gl.getAttribLocation(prog, 'position');
+        gl.enableVertexAttribArray(posAttr);
+        gl.vertexAttribPointer(posAttr, 2, gl.FLOAT, false, 0, 0);
+
+        this.uniforms = {
+          uTime: gl.getUniformLocation(prog, 'uTime'),
+          uResolution: gl.getUniformLocation(prog, 'uResolution'),
+          uColor1: gl.getUniformLocation(prog, 'uColor1'),
+          uColor2: gl.getUniformLocation(prog, 'uColor2'),
+          uColor3: gl.getUniformLocation(prog, 'uColor3'),
+          uSpeed: gl.getUniformLocation(prog, 'uSpeed'),
+          uNoiseAmp: gl.getUniformLocation(prog, 'uNoiseAmp'),
+          uAudioGlow: gl.getUniformLocation(prog, 'uAudioGlow'),
+        };
+
+        // Set palette: electric sapphire blue, deep violet, emerald cyan
+        gl.uniform3f(this.uniforms.uColor1, 0.08, 0.35, 0.95);
+        gl.uniform3f(this.uniforms.uColor2, 0.55, 0.15, 0.92);
+        gl.uniform3f(this.uniforms.uColor3, 0.0, 0.92, 0.72);
+
+        this.resizeCanvas();
+        window.addEventListener('resize', () => this.resizeCanvas());
+        return true;
+      } catch (err) {
+        console.warn('WebGL init error:', err);
+        return false;
+      }
+    }
+
+    resizeCanvas() {
+      if (!this.gl || !this.auroraCanvas) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const parent = this.auroraCanvas.parentElement || document.body;
+      const w = parent.clientWidth || window.innerWidth;
+      const h = parent.clientHeight || window.innerHeight;
+      this.auroraCanvas.width = w * dpr;
+      this.auroraCanvas.height = h * dpr;
+      this.gl.viewport(0, 0, this.auroraCanvas.width, this.auroraCanvas.height);
+      if (this.program && this.uniforms.uResolution) {
+        this.gl.useProgram(this.program);
+        this.gl.uniform2f(this.uniforms.uResolution, this.auroraCanvas.width, this.auroraCanvas.height);
+      }
+    }
+
+    renderLoop(time) {
+      if (!this.isPlaying) return;
+      this.rafId = requestAnimationFrame((t) => this.renderLoop(t));
+
+      // 1. Analyze Audio in real-time
+      if (this.analyser && this.dataArray) {
+        try {
+          this.analyser.getByteFrequencyData(this.dataArray);
+          const len = this.dataArray.length;
+
+          // Bass range (bins 1 to 10)
+          let bassSum = 0;
+          for (let i = 1; i <= 10; i++) bassSum += this.dataArray[i];
+          const bass = bassSum / (10 * 255);
+
+          // Mid range (bins 11 to 40)
+          let midSum = 0;
+          for (let i = 11; i <= 40; i++) midSum += this.dataArray[i];
+          const mid = midSum / (30 * 255);
+
+          // Average overall volume
+          let total = 0;
+          for (let i = 0; i < len; i++) total += this.dataArray[i];
+          const volume = total / (len * 255);
+
+          this.audioValues = { volume, bass, mid };
+        } catch (e) {
+          // ignore analyzer sampling error
+        }
+      }
+
+      // 2. Smoothly Lerp Targets based on Audio
+      const targetSpeed = this.baseSpeed + this.audioValues.volume * 2.2 + this.audioValues.bass * 0.9;
+      const targetAmp = this.baseNoiseAmp + this.audioValues.bass * 0.75 + this.audioValues.mid * 0.35;
+      const targetGlow = this.audioValues.volume * 1.25 + this.audioValues.bass * 0.7;
+
+      this.curSpeed += (targetSpeed - this.curSpeed) * 0.1;
+      this.curNoiseAmp += (targetAmp - this.curNoiseAmp) * 0.12;
+      this.curGlow += (targetGlow - this.curGlow) * 0.15;
+
+      // 3. Draw WebGL Frame
+      const gl = this.gl;
+      if (gl && this.program) {
+        gl.useProgram(this.program);
+        gl.uniform1f(this.uniforms.uTime, time * 0.001);
+        gl.uniform1f(this.uniforms.uSpeed, this.curSpeed);
+        gl.uniform1f(this.uniforms.uNoiseAmp, this.curNoiseAmp);
+        gl.uniform1f(this.uniforms.uAudioGlow, this.curGlow);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+      }
+    }
+
+    renderKineticText(text) {
+      if (!this.kineticWrapper) return;
+      const container = this.kineticWrapper;
+
+      const oldWords = container.querySelectorAll('.kinetic-word');
+      if (oldWords.length > 0 && !this.reduceMotion) {
+        oldWords.forEach((wordEl) => {
+          wordEl.style.opacity = '0';
+          wordEl.style.filter = 'blur(12px)';
+          wordEl.style.transform = 'translateX(-20px) scale(0.95)';
+        });
+      }
+
+      setTimeout(() => {
+        container.innerHTML = '';
+        if (!text) return;
+
+        const words = text.trim().split(/\s+/);
+        words.forEach((word, idx) => {
+          const span = document.createElement('span');
+          span.className = 'kinetic-word';
+          span.textContent = word;
+
+          if (this.reduceMotion) {
+            span.style.opacity = '1';
+          } else {
+            span.style.opacity = '0';
+            span.style.filter = 'blur(14px)';
+            span.style.transform = 'translateX(28px) scale(0.95)';
+
+            setTimeout(() => {
+              span.style.opacity = '1';
+              span.style.filter = 'blur(0px)';
+              span.style.transform = 'translateX(0) scale(1)';
+            }, idx * 65 + 25);
+          }
+
+          container.appendChild(span);
+        });
+      }, oldWords.length > 0 && !this.reduceMotion ? 220 : 0);
+    }
+
+    handleTimeUpdate() {
+      if (!this.isPlaying || !this.audioEl) return;
+      const curTime = this.audioEl.currentTime;
+
+      let activeIndex = -1;
+      for (let i = 0; i < this.subtitles.length; i++) {
+        const item = this.subtitles[i];
+        if (curTime >= item.start && curTime < item.end) {
+          activeIndex = i;
+          break;
+        }
+      }
+
+      if (activeIndex === -1 && curTime >= this.subtitles[this.subtitles.length - 1].start) {
+        activeIndex = this.subtitles.length - 1;
+      }
+
+      if (activeIndex !== -1 && activeIndex !== this.currentSubtitleIndex) {
+        this.currentSubtitleIndex = activeIndex;
+        this.renderKineticText(this.subtitles[activeIndex].text);
+      }
+    }
+
+    async startCinematicMode() {
+      if (this.isPlaying) return;
+      this.isPlaying = true;
+      this.currentSubtitleIndex = -1;
+
+      // 1. Immediately activate Cinematic UI and start subtitles
+      this.heroSection?.classList.add('mode-cinematic');
+      this.auroraContainer?.classList.add('is-active');
+      this.playBtn?.classList.add('is-hidden');
+      if (this.statusBadge) this.statusBadge.textContent = 'Playing...';
+      this.renderKineticText(this.subtitles[0].text);
+
+      // 2. Play Audio (with error tolerance)
+      if (this.audioEl) {
+        try {
+          this.audioEl.currentTime = 0;
+          const playPromise = this.audioEl.play();
+          if (playPromise !== undefined) {
+            await playPromise;
+          }
+        } catch (audioErr) {
+          console.warn('Audio playback info:', audioErr);
+        }
+      }
+
+      // 3. Connect Web Audio API Analyser (safe against CORS/file:// restrictions)
+      try {
+        if (!this.audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            this.audioCtx = new AudioContextClass();
+          }
+        }
+        if (this.audioCtx && this.audioCtx.state === 'suspended') {
+          await this.audioCtx.resume();
+        }
+
+        if (this.audioCtx && !this.analyser) {
+          this.analyser = this.audioCtx.createAnalyser();
+          this.analyser.fftSize = 256;
+          this.analyser.smoothingTimeConstant = 0.8;
+          this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+
+          if (!this.sourceNode && this.audioEl) {
+            this.sourceNode = this.audioCtx.createMediaElementSource(this.audioEl);
+            this.sourceNode.connect(this.analyser);
+            this.analyser.connect(this.audioCtx.destination);
+          }
+        }
+      } catch (audioCtxErr) {
+        console.warn('Web Audio API analyzer fallback (playback continues normally):', audioCtxErr);
+      }
+
+      // 4. Initialize SoftAurora WebGL loop
+      try {
+        if (this.initWebGL()) {
+          if (!this.rafId) {
+            this.rafId = requestAnimationFrame((t) => this.renderLoop(t));
+          }
+        }
+      } catch (glErr) {
+        console.warn('WebGL aurora error:', glErr);
+      }
+    }
+
+    stopCinematicMode() {
+      this.isPlaying = false;
+      if (this.rafId) {
+        cancelAnimationFrame(this.rafId);
+        this.rafId = null;
+      }
+
+      this.heroSection?.classList.remove('mode-cinematic');
+      this.auroraContainer?.classList.remove('is-active');
+      this.playBtn?.classList.remove('is-hidden');
+      if (this.statusBadge) this.statusBadge.textContent = 'Available';
+
+      this.currentSubtitleIndex = -1;
+      if (this.kineticWrapper) this.kineticWrapper.innerHTML = '';
+
+      if (this.audioEl) {
+        try {
+          this.audioEl.pause();
+          this.audioEl.currentTime = 0;
+        } catch (e) {}
+      }
+    }
+
+    initEvents() {
+      const handleTrigger = (e) => {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        this.startCinematicMode();
+      };
+
+      this.playBtn.addEventListener('click', handleTrigger);
+      this.playBtn.addEventListener('touchend', handleTrigger);
+
+      this.audioEl.addEventListener('timeupdate', () => this.handleTimeUpdate());
+      this.audioEl.addEventListener('ended', () => this.stopCinematicMode());
+    }
+  }
+
   // App Initialization on DOM Ready (with immediate fallback if already ready)
   const initApp = () => {
     const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -1811,31 +2246,34 @@ khedr@dev:~$ echo $PASSION
       });
     }
 
-    // 4. Initialize ParallaxLayers on About Section
+    // 4. Initialize Cinematic Hero Controller (SoftAurora Audio-Reactive + Kinetic Text)
+    new CinematicHeroController();
+
+    // 5. Initialize ParallaxLayers on About Section
     const aboutParallaxEl = document.getElementById('aboutParallax');
     if (aboutParallaxEl) {
       new ParallaxLayers(aboutParallaxEl);
     }
 
-    // 5. Initialize Magic UI Terminal Animation
+    // 6. Initialize Magic UI Terminal Animation
     const terminalEl = document.getElementById('terminalWindow');
     if (terminalEl) {
       new TerminalAnimationController(terminalEl);
     }
 
-    // 6. Initialize Modern Interactive Stack Section
+    // 7. Initialize Modern Interactive Stack Section
     new StackSectionController('#stackInteractiveContainer');
 
-    // 7. Initialize Specular Effect across all Cards (React Bits SpecularButton adaptation)
+    // 8. Initialize Specular Effect across all Cards (React Bits SpecularButton adaptation)
     new SpecularCardController('.specular-card');
 
-    // 8. Initialize Smooth Scroll Deck Stacking for Featured Projects
+    // 9. Initialize Smooth Scroll Deck Stacking for Featured Projects
     new ProjectStackScrollController();
 
-    // 9. Initialize Interactive Physics Chips for Contact Section
+    // 10. Initialize Interactive Physics Chips for Contact Section
     new ContactPhysicsChips('#physicsContainer');
 
-    // 10. Update Footer Copyright Year Dynamically
+    // 11. Update Footer Copyright Year Dynamically
     const footerYearEl = document.getElementById('footerYear');
     if (footerYearEl) {
       footerYearEl.textContent = new Date().getFullYear();

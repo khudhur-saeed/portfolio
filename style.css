@@ -2991,4 +2991,264 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   }
 }
 
+/* ==========================================================================
+   Hero Cinematic Mode & Audio-Reactive Aurora Styling
+   ========================================================================== */
+
+.hero-section {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Aurora Backdrop: strictly behind text and card (z-index: 1, hero-container is z-index: 2) */
+.hero-aurora-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.hero-aurora-backdrop.is-active {
+  opacity: 1;
+}
+
+#auroraCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Dim letter glitch when cinematic mode is active */
+.hero-section.mode-cinematic .glitch-bg-container {
+  opacity: 0.08 !important;
+  transition: opacity 1s ease;
+}
+
+.hero-section.mode-cinematic .hero-intro {
+  background: rgba(10, 14, 26, 0.62) !important;
+  border-color: rgba(99, 102, 241, 0.45) !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 45px rgba(99, 102, 241, 0.3) !important;
+  transition: background 0.8s ease, border-color 0.8s ease, box-shadow 0.8s ease;
+}
+
+/* Hero static content vs kinetic subtitles */
+.hero-static-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+.hero-section.mode-cinematic .hero-static-content {
+  display: none !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hero-kinetic-subtitles {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 240px;
+  width: 100%;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.hero-section.mode-cinematic .hero-kinetic-subtitles {
+  display: flex !important;
+  opacity: 1;
+}
+
+.cinematic-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #38bdf8;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+}
+
+.cinematic-sound-wave {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 10px #38bdf8;
+  animation: pulseSoundDot 1.1s infinite alternate ease-in-out;
+}
+
+@keyframes pulseSoundDot {
+  from { transform: scale(0.75); opacity: 0.45; }
+  to { transform: scale(1.35); opacity: 1; box-shadow: 0 0 14px #38bdf8; }
+}
+
+.kinetic-text-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45em 0.55em;
+  min-height: 120px;
+  width: 100%;
+}
+
+.kinetic-word {
+  display: inline-block;
+  font-family: var(--font-sans, inherit);
+  font-size: clamp(2rem, 3.6vw, 3.2rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  background: linear-gradient(135deg, #ffffff 25%, #cbd5e1 65%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+  will-change: transform, opacity, filter;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease, filter 0.35s ease;
+}
+
+/* ==========================================================================
+   Play Button Overlay (Over ProfileCard)
+   ========================================================================== */
+
+.pc-inside {
+  pointer-events: auto !important;
+}
+
+.pc-play-btn-overlay {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) translateZ(30px) !important;
+  z-index: 30 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  grid-area: auto !important;
+  gap: 8px !important;
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  outline: none !important;
+  padding: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease !important;
+}
+
+.pc-play-btn-overlay * {
+  pointer-events: none !important;
+  grid-area: auto !important;
+}
+
+.pc-play-btn-overlay.is-hidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translate(-50%, -50%) scale(0.65) !important;
+}
+
+.pc-play-btn-inner {
+  width: 70px !important;
+  height: 70px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.08)) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.55) !important;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.5), 0 0 24px rgba(129, 140, 248, 0.45) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #ffffff !important;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.pc-play-btn-overlay:hover .pc-play-btn-inner {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.88), rgba(168, 85, 247, 0.88)) !important;
+  border-color: rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 14px 40px rgba(99, 102, 241, 0.7), 0 0 32px rgba(168, 85, 247, 0.55) !important;
+  transform: scale(1.09) !important;
+}
+
+.pc-play-icon {
+  width: 28px !important;
+  height: 28px !important;
+  margin-left: 3px !important;
+  fill: #ffffff !important;
+  display: block !important;
+}
+
+.pc-play-pulse-ring {
+  position: absolute !important;
+  top: 0 !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 70px !important;
+  height: 70px !important;
+  border-radius: 50% !important;
+  border: 2px solid rgba(129, 140, 248, 0.7) !important;
+  animation: playPulseAnim 2.4s infinite cubic-bezier(0.215, 0.61, 0.355, 1) !important;
+  pointer-events: none !important;
+}
+
+@keyframes playPulseAnim {
+  0% {
+    transform: translateX(-50%) scale(1);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translateX(-50%) scale(1.7);
+    opacity: 0;
+  }
+}
+
+.pc-play-label {
+  font-family: var(--font-sans, inherit) !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  color: #ffffff !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85) !important;
+  background: rgba(15, 23, 42, 0.8) !important;
+  padding: 4px 12px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  backdrop-filter: blur(8px) !important;
+  display: block !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pc-play-pulse-ring {
+    animation: none;
+    display: none;
+  }
+  .kinetic-word {
+    transition: opacity 0.2s ease !important;
+    filter: none !important;
+    transform: none !important;
+  }
+}
+
+
 

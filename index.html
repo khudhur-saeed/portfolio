@@ -119,29 +119,52 @@
         <div class="glitch-outer-vignette"></div>
       </div>
 
+      <!-- SoftAurora Audio-Reactive WebGL Background -->
+      <div class="hero-aurora-backdrop" id="heroAurora" aria-hidden="true">
+        <canvas id="auroraCanvas"></canvas>
+      </div>
+
+      <!-- Hidden Audio Element for Cinematic Mode -->
+      <audio id="heroCinematicAudio" preload="auto">
+        <source src="assets/cinematic-audio.mp3" type="audio/mp3">
+        <source src="assets/cinematic-audio.webm" type="audio/webm">
+        <source src="i am not like everybody else.webm" type="audio/webm">
+      </audio>
+
       <div class="hero-container">
         
         <!-- Combined Single Hero Element: Intro + Profile -->
         <div class="hero-intro specular-card" id="heroIntro" data-gsap-hero>
           
-          <!-- Left: Name & Welcome Message -->
+          <!-- Left: Name & Welcome Message / Kinetic Subtitles -->
           <div class="hero-content">
-            <div class="hero-badge">
-              <span class="status-pulse"></span>
-              <span>Available for new opportunities</span>
+            <div class="hero-static-content" id="heroStaticContent">
+              <div class="hero-badge">
+                <span class="status-pulse"></span>
+                <span>Available for new opportunities</span>
+              </div>
+
+              <h1 class="hero-title">
+                Hi, I'm <span class="gradient-text">Khedr</span>
+              </h1>
+
+              <p class="hero-welcome">
+                Welcome to my personal portfolio. I specialize in building robust, intuitive web applications and crafting memorable digital experiences with modern web technologies.
+              </p>
+
+              <div class="hero-actions">
+                <a href="#projects" class="btn btn-primary">View Projects</a>
+                <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+              </div>
             </div>
 
-            <h1 class="hero-title">
-              Hi, I'm <span class="gradient-text">Khedr</span>
-            </h1>
-
-            <p class="hero-welcome">
-              Welcome to my personal portfolio. I specialize in building robust, intuitive web applications and crafting memorable digital experiences with modern web technologies.
-            </p>
-
-            <div class="hero-actions">
-              <a href="#projects" class="btn btn-primary">View Projects</a>
-              <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+            <!-- Kinetic Subtitles Container (Cinematic Mode) -->
+            <div class="hero-kinetic-subtitles" id="heroKineticSubtitles" aria-live="polite" aria-atomic="true">
+              <div class="cinematic-indicator">
+                <span class="cinematic-sound-wave"></span>
+                <span>CINEMATIC AUDIO EXPERIENCE</span>
+              </div>
+              <div class="kinetic-text-wrapper" id="kineticTextWrapper"></div>
             </div>
           </div>
 
@@ -155,9 +178,6 @@
                 <section class="pc-card">
                   <div class="pc-inside">
                     
-                    <!-- Glass glare reflection -->
-                    <div class="pc-glare"></div>
-
                     <!-- Avatar Image Content (1:1 Ratio Matched to Photo) -->
                     <div class="pc-avatar-content">
                       <img 
@@ -166,13 +186,28 @@
                         alt="Khedr Portrait Photo" 
                         loading="eager"
                       />
+                    </div>
 
-                      <!-- Frosted glass user details banner -->
-                      <div class="pc-user-info">
-                        <div class="pc-user-details">
-                          <div class="pc-mini-avatar">
-                            <img src="assets/user_photo.jpg" alt="Mini Avatar" />
-                          </div>
+                    <!-- Glass glare reflection -->
+                    <div class="pc-glare"></div>
+
+                    <!-- Play Trigger Button Overlay (Positioned above glare with pointer-events) -->
+                    <button type="button" class="pc-play-btn-overlay" id="pcPlayBtn" aria-label="Play cinematic audio experience">
+                      <span class="pc-play-pulse-ring"></span>
+                      <div class="pc-play-btn-inner">
+                        <svg viewBox="0 0 24 24" fill="currentColor" class="pc-play-icon">
+                          <path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14z"/>
+                        </svg>
+                      </div>
+                      <span class="pc-play-label">Experience</span>
+                    </button>
+
+                    <!-- Frosted glass user details banner -->
+                    <div class="pc-user-info">
+                      <div class="pc-user-details">
+                        <div class="pc-mini-avatar">
+                          <img src="assets/user_photo.jpg" alt="Mini Avatar" />
+                        </div>
                           <div class="pc-user-text">
                             <div class="pc-handle">@khedr</div>
                           </div>
