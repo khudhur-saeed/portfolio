@@ -1780,7 +1780,7 @@ khedr@dev:~$ echo $PASSION
       this.auroraCanvas = document.getElementById('auroraCanvas');
       this.heroSection = document.getElementById('hero');
       this.kineticWrapper = document.getElementById('kineticTextWrapper');
-      this.statusBadge = document.querySelector('.pc-avatar-content .pc-status');
+      this.statusBadge = document.querySelector('.pc-status');
       this.reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       if (!this.playBtn || !this.audioEl || !this.auroraCanvas) return;
@@ -1793,27 +1793,68 @@ khedr@dev:~$ echo $PASSION
         { start: 10.0, end: 12.75, text: "I have to be something different!" }
       ];
 
+      // Exact Audio-VFX Synchronized Impact Cues
+      this.impactCues = [
+        { time: 2.00, intensity: 0.45, isApex: false, triggered: false },
+        { time: 4.80, intensity: 0.60, isApex: false, triggered: false },
+        { time: 7.00, intensity: 1.00, isApex: true,  triggered: false },
+        { time: 8.65, intensity: 0.65, isApex: false, triggered: false },
+        { time: 10.00, intensity: 0.85, isApex: false, triggered: false }
+      ];
+
+      this.audioMissing = false;
       this.isPlaying = false;
       this.isStarting = false;
       this.swapTimeout = null;
       this.currentSubtitleIndex = -1;
+      this.rafId = null;
+
+      // Predictive Arc Clock & Timing
+      this.clock = 0;
+      this.lastTime = performance.now();
+
+      // Impact Shockwave State
+      this.impactState = {
+        active: false,
+        startTime: 0,
+        maxIntensity: 0,
+        intensity: 0,
+        progress: 0,
+        duration: 0.8
+      };
+
+      // Pointer Repulsion State
+      this.pointerState = {
+        x: 0,
+        y: 0,
+        targetX: 0,
+        targetY: 0,
+        active: 0,
+        targetActive: 0
+      };
+
+      // Smooth Fluid Fire Shader Configurations
+      this.config = {
+        speed: 1.35,
+        pointerRadius: 280,
+        pointerStrength: 0.40,
+        bg: [0.012, 0.010, 0.016],     // Deep obsidian ash
+        base: [0.96, 0.12, 0.24],      // Radiant Crimson #f43f5e
+        accent: [1.0, 0.44, 0.08],     // Molten Amber Orange
+        high: [1.0, 0.98, 0.92]        // Incandescent White Heat Core
+      };
+
+      // WebGL State
+      this.gl = null;
+      this.program = null;
+      this.locs = {};
+
+      // Web Audio API State
       this.audioCtx = null;
       this.analyser = null;
       this.sourceNode = null;
       this.dataArray = null;
-      this.rafId = null;
-
       this.audioValues = { volume: 0, bass: 0, mid: 0 };
-
-      // WebGL Aurora State
-      this.gl = null;
-      this.program = null;
-      this.uniforms = {};
-      this.baseSpeed = 0.45;
-      this.baseNoiseAmp = 0.55;
-      this.curSpeed = 0.45;
-      this.curNoiseAmp = 0.55;
-      this.curGlow = 0.0;
 
       this.initEvents();
     }
@@ -1821,80 +1862,150 @@ khedr@dev:~$ echo $PASSION
     initWebGL() {
       if (this.gl) return true;
       const canvas = this.auroraCanvas;
-      const gl = canvas.getContext('webgl', { alpha: true, antialias: true, powerPreference: 'high-performance' })
+      const gl = canvas.getContext('webgl', { alpha: false, antialias: false, depth: false })
               || canvas.getContext('experimental-webgl');
       if (!gl) return false;
       this.gl = gl;
 
-      const vsSource = `
-        attribute vec2 position;
-        varying vec2 vUv;
-        void main() {
-          vUv = position * 0.5 + 0.5;
-          gl_Position = vec4(position, 0.0, 1.0);
-        }
+      const VERT_SRC = `
+        attribute vec2 a_pos;
+        void main(){ gl_Position = vec4(a_pos, 0.0, 1.0); }
       `;
 
-      const fsSource = `
+      const FRAG_SRC = `
+        #ifdef GL_FRAGMENT_PRECISION_HIGH
         precision highp float;
-        varying vec2 vUv;
+        #else
+        precision mediump float;
+        #endif
+
+        uniform vec2  uRes;
         uniform float uTime;
-        uniform vec2 uResolution;
-        uniform vec3 uColor1;
-        uniform vec3 uColor2;
-        uniform vec3 uColor3;
-        uniform float uSpeed;
-        uniform float uNoiseAmp;
-        uniform float uAudioGlow;
+        uniform float uDpr;
+        uniform vec3  uBg, uBase, uAccent, uHigh;
+        uniform vec2  uMouse;
+        uniform float uMouseRadius, uMouseStrength;
 
-        vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-        vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-        vec3 permute(vec3 x) { return mod289(((x * 34.0) + 1.0) * x); }
+        // Shockwave Impact & Real-time Audio Breathing
+        uniform float uImpact;         // 0.0 to 1.0 (apex cue blast)
+        uniform float uImpactProgress; // 0.0 to 1.0 (expanding ring)
+        uniform float uAudioEnergy;    // 0.0 to 1.0 (continuous voice/bass intensity)
 
-        float snoise(vec2 v) {
-          const vec4 C = vec4(0.211324865405187, 0.366025403784439,
-                             -0.577350269189626, 0.024390243902439);
-          vec2 i  = floor(v + dot(v, C.yy));
-          vec2 x0 = v -   i + dot(i, C.xx);
-          vec2 i1;
-          i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-          vec4 x12 = x0.xyxy + C.xxzz;
-          x12.xy -= i1;
-          i = mod289(i);
-          vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
-          vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0);
-          m = m * m;
-          m = m * m;
-          vec3 x = 2.0 * fract(p * C.www) - 1.0;
-          vec3 h = abs(x) - 0.5;
-          vec3 ox = floor(x + 0.5);
-          vec3 a0 = x - ox;
-          m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);
-          vec3 g;
-          g.x  = a0.x  * x0.x  + h.x  * x0.y;
-          g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-          return 130.0 * dot(m, g);
+        // 2D Hash & Noise Functions for Organic Fluid Fire
+        vec2 hash(vec2 p) {
+          p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
+          return -1.0 + 2.0 * fract(sin(p) * 43758.5453123);
         }
 
-        void main() {
-          vec2 st = gl_FragCoord.xy / uResolution.xy;
-          st.x *= uResolution.x / uResolution.y;
+        float noise(vec2 p) {
+          vec2 i = floor(p);
+          vec2 f = fract(p);
+          vec2 u = f * f * (3.0 - 2.0 * f);
+          return mix(mix(dot(hash(i + vec2(0.0, 0.0)), f - vec2(0.0, 0.0)),
+                         dot(hash(i + vec2(1.0, 0.0)), f - vec2(1.0, 0.0)), u.x),
+                     mix(dot(hash(i + vec2(0.0, 1.0)), f - vec2(0.0, 1.0)),
+                         dot(hash(i + vec2(1.0, 1.0)), f - vec2(1.0, 1.0)), u.x), u.y);
+        }
 
-          float t = uTime * uSpeed;
-          float n1 = snoise(vec2(st.x * 1.35 + t * 0.22, st.y * 1.7 - t * 0.14)) * uNoiseAmp;
-          float n2 = snoise(vec2(st.x * 2.15 - t * 0.32, st.y * 2.4 + t * 0.22 + n1)) * (uNoiseAmp * 0.65);
-          float n3 = snoise(vec2(st.x * 3.8 + t * 0.45, st.y * 3.6 - n2)) * 0.22;
+        float fbm(vec2 p) {
+          float v = 0.0;
+          float a = 0.5;
+          mat2 rot = mat2(0.80, 0.60, -0.60, 0.80);
+          for (int i = 0; i < 4; i++) {
+            v += a * noise(p);
+            p = rot * p * 2.02 + vec2(1.7, 9.2);
+            a *= 0.5;
+          }
+          return v;
+        }
 
-          float wave = smoothstep(0.0, 1.0, 0.5 + 0.5 * (n1 + n2 + n3));
-          float verticalMask = smoothstep(0.05, 0.9, 1.0 - vUv.y * 0.75);
+        void main(){
+          vec2 uv = gl_FragCoord.xy / uRes.xy;
+          // Normalized aspect-corrected coordinates: (0,0) at bottom-center
+          vec2 p = (gl_FragCoord.xy - vec2(uRes.x * 0.5, 0.0)) / uRes.y;
 
-          vec3 color = mix(uColor1, uColor2, clamp(wave + n1 * 0.5, 0.0, 1.0));
-          color = mix(color, uColor3, clamp(n2 * 1.35, 0.0, 1.0));
+          // 1. Interactive Pointer Heat Distortion
+          vec2 m = (uMouse - vec2(uRes.x * 0.5, 0.0)) / uRes.y;
+          vec2 toMouse = p - m;
+          float dMouse = length(toMouse);
+          float mRadius = max(0.05, uMouseRadius / uRes.y);
+          float mForce = uMouseStrength * exp(- (dMouse * dMouse) / (2.0 * mRadius * mRadius));
+          if (dMouse > 0.001) {
+            p += (toMouse / dMouse) * (mForce * 0.18);
+          }
 
-          float brightness = (0.75 + uAudioGlow * 1.35) * verticalMask;
-          vec3 finalColor = color * brightness;
+          // 2. Shockwave blast ring & outward displacement
+          float shockRadius = uImpactProgress * 1.8;
+          float dCenter = length(p - vec2(0.0, 0.25));
+          float ringDist = abs(dCenter - shockRadius);
+          float ringWidth = 0.08 + uImpact * 0.12;
+          float ring = (uImpact > 0.01) ? (smoothstep(ringWidth, 0.0, ringDist) * uImpact) : 0.0;
+          if (uImpact > 0.01 && dCenter > 0.001) {
+            vec2 blastDir = (p - vec2(0.0, 0.25)) / dCenter;
+            p += blastDir * (smoothstep(ringWidth * 1.4, 0.0, ringDist) * uImpact * 0.16);
+          }
 
-          gl_FragColor = vec4(finalColor, 0.88 * verticalMask);
+          // 3. Fluid Flame Coordinate System (Rising Upwards with Audio Acceleration)
+          float flameSpeed = uTime * (0.75 + uAudioEnergy * 0.85 + uImpact * 1.5);
+          vec2 fireCoord = vec2(p.x * 2.2, p.y * 1.6);
+          fireCoord.y -= flameSpeed;
+
+          // Domain warping: creates curling tongues of fire and turbulent flame plumes
+          vec2 q = vec2(fbm(fireCoord), fbm(fireCoord + vec2(4.3, 1.8)));
+          vec2 r = vec2(fbm(fireCoord + 2.5 * q + vec2(1.7, 3.2) - vec2(0.0, flameSpeed * 0.5)),
+                        fbm(fireCoord + 2.5 * q + vec2(8.3, 2.8) + vec2(0.0, flameSpeed * 0.3)));
+          float flameNoise = fbm(fireCoord + 3.0 * r);
+
+          // 4. Smooth Fire Geometry & Vertical Dissipation
+          // Fire originates from bottom / center and rises gracefully
+          float horizontalTaper = 1.0 - smoothstep(0.0, 1.1 + uAudioEnergy * 0.4, abs(p.x) * (1.2 + p.y * 0.6));
+          float verticalFade = smoothstep(1.3 + uImpact * 0.4 + uAudioEnergy * 0.3, 0.05, p.y);
+          
+          // Organic flame body
+          float fireIntensity = clamp((flameNoise * 1.25 + 0.35) * horizontalTaper * verticalFade, 0.0, 1.6);
+          fireIntensity += (1.0 - smoothstep(0.0, 0.35, p.y)) * horizontalTaper * 0.65; // Molten base glow
+          fireIntensity *= (1.0 + uAudioEnergy * 0.75 + uImpact * 1.2); // Audio reactivity boost
+
+          // 5. Fire Color Palette Grading (Charred ember -> Crimson -> Fiery Orange -> Radiant Gold -> White Heat)
+          vec3 darkEmber  = mix(uBg, vec3(0.35, 0.02, 0.05), 0.7);
+          vec3 crimson    = uBase;                                    // Radiant Crimson #f43f5e
+          vec3 flameAmber = uAccent;                                  // Molten Amber Orange
+          vec3 goldHeat   = vec3(1.0, 0.84, 0.25);                    // Pure Golden Flame
+          vec3 whiteHot   = uHigh;                                    // Blinding White Core #ffffff
+
+          vec3 col = uBg;
+
+          // Layer 1: Ambient ember smoke / deep heat aura
+          float aura = smoothstep(0.05, 0.45, fireIntensity);
+          col = mix(col, darkEmber, aura * 0.85);
+
+          // Layer 2: Rich crimson and scarlet flame tongues
+          float midFlame = smoothstep(0.30, 0.75, fireIntensity);
+          col = mix(col, crimson, midFlame);
+
+          // Layer 3: Blazing amber-orange heat
+          float hotFlame = smoothstep(0.65, 1.05, fireIntensity);
+          col = mix(col, flameAmber, hotFlame);
+
+          // Layer 4: Radiant golden heat core
+          float coreFlame = smoothstep(0.95, 1.35, fireIntensity);
+          col = mix(col, goldHeat, coreFlame);
+
+          // Layer 5: Incandescent white-hot sparks and inner furnace
+          float whiteCore = smoothstep(1.30, 1.65, fireIntensity);
+          col = mix(col, whiteHot, whiteCore);
+
+          // 6. Shockwave Blast Wave Overlay (Fiery Golden Ring & Apex Flash)
+          if (ring > 0.01) {
+            col = mix(col, goldHeat, ring * 0.75);
+            col += whiteHot * (ring * 0.6);
+          }
+          if (uImpact > 0.01) {
+            col += flameAmber * (pow(uImpact, 2.0) * 0.35);
+            col += whiteHot * (pow(uImpact, 3.0) * 0.25);
+          }
+
+          gl_FragColor = vec4(col, 1.0);
         }
       `;
 
@@ -1903,142 +2014,234 @@ khedr@dev:~$ echo $PASSION
         gl.shaderSource(s, src);
         gl.compileShader(s);
         if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
-          console.warn('Shader compile warning:', gl.getShaderInfoLog(s));
+          console.warn('PredictiveArc shader compile warning:', gl.getShaderInfoLog(s));
+          return null;
         }
         return s;
       };
 
       try {
-        const vs = compile(gl.VERTEX_SHADER, vsSource);
-        const fs = compile(gl.FRAGMENT_SHADER, fsSource);
+        const vs = compile(gl.VERTEX_SHADER, VERT_SRC);
+        const fs = compile(gl.FRAGMENT_SHADER, FRAG_SRC);
+        if (!vs || !fs) return false;
+
         const prog = gl.createProgram();
         gl.attachShader(prog, vs);
         gl.attachShader(prog, fs);
         gl.linkProgram(prog);
 
         if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
-          console.warn('Program link warning:', gl.getProgramInfoLog(prog));
+          console.warn('PredictiveArc link warning:', gl.getProgramInfoLog(prog));
           return false;
         }
 
         gl.useProgram(prog);
         this.program = prog;
 
-        const positionBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-        gl.bufferData(
-          gl.ARRAY_BUFFER,
-          new Float32Array([
-            -1.0, -1.0,
-             1.0, -1.0,
-            -1.0,  1.0,
-            -1.0,  1.0,
-             1.0, -1.0,
-             1.0,  1.0,
-          ]),
-          gl.STATIC_DRAW
-        );
+        // Full-screen triangle buffer
+        const buf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+        const aPos = gl.getAttribLocation(prog, 'a_pos');
+        gl.enableVertexAttribArray(aPos);
+        gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
 
-        const posAttr = gl.getAttribLocation(prog, 'position');
-        gl.enableVertexAttribArray(posAttr);
-        gl.vertexAttribPointer(posAttr, 2, gl.FLOAT, false, 0, 0);
-
-        this.uniforms = {
-          uTime: gl.getUniformLocation(prog, 'uTime'),
-          uResolution: gl.getUniformLocation(prog, 'uResolution'),
-          uColor1: gl.getUniformLocation(prog, 'uColor1'),
-          uColor2: gl.getUniformLocation(prog, 'uColor2'),
-          uColor3: gl.getUniformLocation(prog, 'uColor3'),
-          uSpeed: gl.getUniformLocation(prog, 'uSpeed'),
-          uNoiseAmp: gl.getUniformLocation(prog, 'uNoiseAmp'),
-          uAudioGlow: gl.getUniformLocation(prog, 'uAudioGlow'),
+        this.locs = {};
+        this.u = (name) => {
+          if (!(name in this.locs)) this.locs[name] = gl.getUniformLocation(prog, name);
+          return this.locs[name];
         };
 
-        // Set palette: electric sapphire blue, deep violet, emerald cyan
-        gl.uniform3f(this.uniforms.uColor1, 0.08, 0.35, 0.95);
-        gl.uniform3f(this.uniforms.uColor2, 0.55, 0.15, 0.92);
-        gl.uniform3f(this.uniforms.uColor3, 0.0, 0.92, 0.72);
+        // Pointer move / leave listeners for flame heat swirl & repulsion
+        const handlePointer = (e) => {
+          const rect = this.auroraCanvas.getBoundingClientRect();
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          this.pointerState.targetX = (e.clientX - rect.left) * dpr;
+          this.pointerState.targetY = (rect.height - (e.clientY - rect.top)) * dpr;
+          this.pointerState.targetActive = 1;
+        };
 
-        this.resizeCanvas();
-        window.addEventListener('resize', () => this.resizeCanvas());
+        if (this.heroSection) {
+          this.heroSection.addEventListener('pointermove', handlePointer, { passive: true });
+          this.heroSection.addEventListener('pointerleave', () => { this.pointerState.targetActive = 0; });
+          this.heroSection.addEventListener('pointercancel', () => { this.pointerState.targetActive = 0; });
+        }
+
         return true;
       } catch (err) {
-        console.warn('WebGL init error:', err);
+        console.warn('PredictiveArc WebGL init error:', err);
         return false;
       }
     }
 
-    resizeCanvas() {
-      if (!this.gl || !this.auroraCanvas) return;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const parent = this.auroraCanvas.parentElement || document.body;
-      const w = parent.clientWidth || window.innerWidth;
-      const h = parent.clientHeight || window.innerHeight;
-      this.auroraCanvas.width = w * dpr;
-      this.auroraCanvas.height = h * dpr;
-      this.gl.viewport(0, 0, this.auroraCanvas.width, this.auroraCanvas.height);
-      if (this.program && this.uniforms.uResolution) {
-        this.gl.useProgram(this.program);
-        this.gl.uniform2f(this.uniforms.uResolution, this.auroraCanvas.width, this.auroraCanvas.height);
+    triggerImpact(intensity = 1.0, isApex = false) {
+      this.impactState = {
+        active: true,
+        startTime: performance.now(),
+        maxIntensity: intensity,
+        intensity: intensity,
+        progress: 0,
+        duration: isApex ? 0.95 : 0.65
+      };
+
+      if (isApex) {
+        const introEl = document.getElementById('heroIntro') || this.heroSection;
+        if (introEl) {
+          introEl.classList.remove('is-shaking');
+          void introEl.offsetWidth; // trigger reflow
+          introEl.classList.add('is-shaking');
+          setTimeout(() => introEl.classList.remove('is-shaking'), 450);
+        }
       }
     }
 
-    renderLoop(time) {
+    renderLoop(now) {
       if (!this.isPlaying) return;
       this.rafId = requestAnimationFrame((t) => this.renderLoop(t));
 
-      // 1. Frame-accurate 60fps Subtitle Sync: perfectly aligned with audioEl.currentTime
+      const dt = Math.min(0.05, (now - this.lastTime) / 1000);
+      this.lastTime = now;
+
+      // 1. Frame-accurate 60fps Subtitle & Cue Sync
       this.handleTimeUpdate();
 
-      // 2. Analyze Audio in real-time
+      // 2. Audio Frequencies Analysis with Acoustic Timeline Fallback
+      let hasRealAudio = false;
       if (this.analyser && this.dataArray) {
         try {
           this.analyser.getByteFrequencyData(this.dataArray);
-          const len = this.dataArray.length;
 
-          // Bass range (bins 1 to 10)
+          // Bass range (bins 1 to 14)
           let bassSum = 0;
-          for (let i = 1; i <= 10; i++) bassSum += this.dataArray[i];
-          const bass = bassSum / (10 * 255);
+          for (let i = 1; i <= 14; i++) bassSum += this.dataArray[i];
+          const bass = bassSum / (14 * 255);
 
-          // Mid range (bins 11 to 40)
+          // Vocal / mid range (bins 15 to 50)
           let midSum = 0;
-          for (let i = 11; i <= 40; i++) midSum += this.dataArray[i];
-          const mid = midSum / (30 * 255);
+          for (let i = 15; i <= 50; i++) midSum += this.dataArray[i];
+          const mid = midSum / (36 * 255);
 
-          // Average overall volume
+          // Overall volume
           let total = 0;
-          for (let i = 0; i < len; i++) total += this.dataArray[i];
-          const volume = total / (len * 255);
+          for (let i = 0; i < this.dataArray.length; i++) total += this.dataArray[i];
+          const volume = total / (this.dataArray.length * 255);
 
-          this.audioValues = { volume, bass, mid };
-        } catch (e) {
-          // ignore analyzer sampling error
+          if (volume > 0.005 || bass > 0.005) {
+            hasRealAudio = true;
+            this.audioValues = { volume, bass, mid };
+          }
+        } catch (e) {}
+      }
+
+      // Seamless fallback model matching audio loudness waveform if Analyser is silent/sandboxed
+      if (!hasRealAudio && this.audioEl && !this.audioEl.paused) {
+        const t = this.audioEl.currentTime;
+        let sVol = 0.25;
+        let sBass = 0.20;
+        let sMid = 0.28;
+
+        if (t < 0.17) {
+          sVol = 0.02; sBass = 0.02; sMid = 0.02;
+        } else if (t < 2.0) {
+          sVol = 0.35 + 0.08 * Math.sin(t * 14);
+          sBass = 0.28 + 0.06 * Math.cos(t * 9);
+          sMid = 0.38;
+        } else if (t < 5.0) {
+          const swell = (t > 4.4 && t < 4.9) ? 0.40 : 0.0;
+          sVol = 0.36 + swell + 0.1 * Math.sin(t * 11);
+          sBass = 0.30 + swell * 0.8;
+          sMid = 0.40;
+        } else if (t < 7.0) {
+          sVol = 0.40 + 0.12 * Math.sin(t * 12);
+          sBass = 0.35 + 0.08 * Math.cos(t * 8);
+          sMid = 0.44;
+        } else if (t < 10.0) {
+          const apexSwell = (t >= 7.0 && t < 7.9) ? 0.50 : 0.22;
+          sVol = 0.50 + apexSwell;
+          sBass = 0.48 + apexSwell * 0.85;
+          sMid = 0.52;
+        } else if (t < 12.35) {
+          const finSwell = (t >= 10.0 && t < 10.8) ? 0.46 : 0.18;
+          sVol = 0.44 + finSwell;
+          sBass = 0.40 + finSwell * 0.75;
+          sMid = 0.46;
+        } else {
+          sVol = 0.02; sBass = 0.02; sMid = 0.02;
+        }
+        this.audioValues = { volume: sVol, bass: sBass, mid: sMid };
+      }
+
+      // 3. Audio-reactive clock & wave speed (accelerates with vocal energy)
+      this.clock = (this.clock + dt * 0.9 * (this.config.speed + this.audioValues.volume * 2.8 + this.audioValues.bass * 1.5)) % 6283;
+
+      // 4. Pointer smooth lerping
+      const posLerp = Math.min(1, dt * 12);
+      const activeLerp = Math.min(1, dt * 6);
+      this.pointerState.x += (this.pointerState.targetX - this.pointerState.x) * posLerp;
+      this.pointerState.y += (this.pointerState.targetY - this.pointerState.y) * posLerp;
+      this.pointerState.active += (this.pointerState.targetActive - this.pointerState.active) * activeLerp;
+
+      // 5. Impact expansion & decay calculation
+      const imp = this.impactState;
+      if (imp.active) {
+        const elapsed = (now - imp.startTime) / 1000;
+        const duration = imp.duration || 0.8;
+        if (elapsed < duration) {
+          const p = elapsed / duration;
+          imp.progress = p;
+          imp.intensity = imp.maxIntensity * Math.pow(1.0 - p, 2.2);
+        } else {
+          imp.active = false;
+          imp.intensity = 0;
+          imp.progress = 0;
         }
       }
 
-      // 3. Smoothly Lerp Targets based on Audio
-      const targetSpeed = this.baseSpeed + this.audioValues.volume * 2.2 + this.audioValues.bass * 0.9;
-      const targetAmp = this.baseNoiseAmp + this.audioValues.bass * 0.75 + this.audioValues.mid * 0.35;
-      const targetGlow = this.audioValues.volume * 1.25 + this.audioValues.bass * 0.7;
-
-      this.curSpeed += (targetSpeed - this.curSpeed) * 0.1;
-      this.curNoiseAmp += (targetAmp - this.curNoiseAmp) * 0.12;
-      this.curGlow += (targetGlow - this.curGlow) * 0.15;
-
-      // 4. Draw WebGL Frame
+      // 6. Draw WebGL Frame with Real-Time Audio-Synchronized Parameters
       const gl = this.gl;
-      if (gl && this.program) {
-        gl.useProgram(this.program);
-        gl.uniform1f(this.uniforms.uTime, time * 0.001);
-        gl.uniform1f(this.uniforms.uSpeed, this.curSpeed);
-        gl.uniform1f(this.uniforms.uNoiseAmp, this.curNoiseAmp);
-        gl.uniform1f(this.uniforms.uAudioGlow, this.curGlow);
-        gl.drawArrays(gl.TRIANGLES, 0, 6);
+      if (!gl || !this.program) return;
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const cw = this.auroraCanvas.clientWidth || 1200;
+      const ch = this.auroraCanvas.clientHeight || 800;
+      const bw = Math.max(1, Math.round(cw * dpr));
+      const bh = Math.max(1, Math.round(ch * dpr));
+
+      if (this.auroraCanvas.width !== bw || this.auroraCanvas.height !== bh) {
+        this.auroraCanvas.width = bw;
+        this.auroraCanvas.height = bh;
+        gl.viewport(0, 0, bw, bh);
       }
+
+      const impactVal = imp.active ? imp.intensity : 0.0;
+      const impactProg = imp.active ? imp.progress : 0.0;
+      const audioEnergyVal = Math.min(1.0, this.audioValues.volume * 1.35 + this.audioValues.bass * 0.90);
+
+      gl.useProgram(this.program);
+      gl.uniform2f(this.u("uRes"), bw, bh);
+      gl.uniform1f(this.u("uTime"), this.clock);
+      gl.uniform1f(this.u("uDpr"), dpr);
+      gl.uniform2f(this.u("uMouse"), this.pointerState.x, this.pointerState.y);
+      gl.uniform1f(this.u("uMouseRadius"), this.config.pointerRadius * dpr);
+      gl.uniform1f(this.u("uMouseStrength"), this.config.pointerStrength * this.pointerState.active);
+      gl.uniform1f(this.u("uImpact"), impactVal);
+      gl.uniform1f(this.u("uImpactProgress"), impactProg);
+      gl.uniform1f(this.u("uAudioEnergy"), audioEnergyVal);
+
+      const bg = this.config.bg;
+      const base = this.config.base;
+      const accent = this.config.accent;
+      const high = this.config.high;
+
+      gl.uniform3f(this.u("uBg"), bg[0], bg[1], bg[2]);
+      gl.uniform3f(this.u("uBase"), base[0], base[1], base[2]);
+      gl.uniform3f(this.u("uAccent"), accent[0], accent[1], accent[2]);
+      gl.uniform3f(this.u("uHigh"), high[0], high[1], high[2]);
+
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
     }
 
-    renderKineticText(text) {
+    renderKineticText(text, isApex = false) {
       if (!this.kineticWrapper) return;
       const container = this.kineticWrapper;
 
@@ -2062,40 +2265,54 @@ khedr@dev:~$ echo $PASSION
         const words = text.trim().split(/\s+/);
         words.forEach((word, idx) => {
           const span = document.createElement('span');
-          span.className = 'kinetic-word';
+          span.className = 'kinetic-word' + (isApex ? ' is-apex' : '');
           span.textContent = word;
+          span.style.marginRight = '0.36em';
+          span.style.marginBottom = '0.15em';
 
           if (this.reduceMotion) {
             span.style.opacity = '1';
           } else {
             span.style.opacity = '0';
             span.style.filter = 'blur(12px)';
-            span.style.transform = 'translateX(20px) scale(0.96)';
+            span.style.transform = isApex ? 'translateX(20px) scale(1.06)' : 'translateX(16px) scale(0.96)';
 
             setTimeout(() => {
               if (!this.isPlaying || (this.audioEl && this.audioEl.paused)) return;
               span.style.opacity = '1';
               span.style.filter = 'blur(0px)';
-              span.style.transform = 'translateX(0) scale(1)';
+              span.style.transform = isApex ? 'translateX(0) scale(1.04)' : 'translateX(0) scale(1)';
             }, idx * 45 + 15);
           }
 
           container.appendChild(span);
+          if (idx < words.length - 1) {
+            container.appendChild(document.createTextNode(' '));
+          }
         });
       }, swapDelay);
     }
 
     handleTimeUpdate() {
-      // Guard: strictly do nothing if audio is paused or not playing
       if (!this.isPlaying || !this.audioEl || this.audioEl.paused) return;
       const curTime = this.audioEl.currentTime;
 
-      // Check if audio finished the speech section (12.75s)
+      // Stop cleanly when playback finishes speech duration
       if (curTime >= this.subtitles[this.subtitles.length - 1].end) {
         this.stopCinematicMode();
         return;
       }
 
+      // Check Impact Cues
+      for (let c = 0; c < this.impactCues.length; c++) {
+        const cue = this.impactCues[c];
+        if (!cue.triggered && curTime >= cue.time && curTime < cue.time + 0.35) {
+          cue.triggered = true;
+          this.triggerImpact(cue.intensity, cue.isApex);
+        }
+      }
+
+      // Check Subtitle Interval
       let activeIndex = -1;
       for (let i = 0; i < this.subtitles.length; i++) {
         const item = this.subtitles[i];
@@ -2107,19 +2324,63 @@ khedr@dev:~$ echo $PASSION
 
       if (activeIndex !== -1 && activeIndex !== this.currentSubtitleIndex) {
         this.currentSubtitleIndex = activeIndex;
-        this.renderKineticText(this.subtitles[activeIndex].text);
+        const isApex = (activeIndex === 3); // 7.00s - 10.00s Apex phrase
+        this.renderKineticText(this.subtitles[activeIndex].text, isApex);
       }
+    }
+
+    showAudioMissingFeedback() {
+      // Ensure all visual effects and classes are strictly cleared and not applied
+      this.heroSection?.classList.remove('mode-cinematic');
+      this.auroraContainer?.classList.remove('is-active');
+      this.playBtn?.classList.remove('is-hidden');
+      if (this.kineticWrapper) this.kineticWrapper.innerHTML = '';
+      const introEl = document.getElementById('heroIntro');
+      if (introEl) introEl.classList.remove('is-shaking');
+
+      if (!this.playBtn) return;
+      const label = this.playBtn.querySelector('.pc-play-label');
+      const originalText = label ? label.textContent : 'Experience';
+
+      this.playBtn.classList.add('pc-play-btn-error');
+      if (label) label.textContent = 'Audio Missing';
+      if (this.statusBadge) this.statusBadge.textContent = 'Audio Unavailable';
+
+      setTimeout(() => {
+        this.playBtn.classList.remove('pc-play-btn-error');
+        if (label && !this.isPlaying) label.textContent = originalText;
+        if (this.statusBadge && !this.isPlaying) this.statusBadge.textContent = 'Available';
+      }, 2500);
     }
 
     async startCinematicMode() {
       if (this.isPlaying || this.isStarting || !this.audioEl) return;
       this.isStarting = true;
 
-      // 1. Reset any previous subtitle text or state
-      this.currentSubtitleIndex = -1;
-      if (this.kineticWrapper) this.kineticWrapper.innerHTML = '';
+      // 1. Strict Pre-flight Check: If audio is missing, has errors, or has no supported source, do NOT apply any effects!
+      if (
+        this.audioMissing ||
+        (this.audioEl.error && this.audioEl.error.code !== 0) ||
+        this.audioEl.networkState === HTMLMediaElement.NETWORK_NO_SOURCE
+      ) {
+        console.warn('Cinematic audio file missing or failed to load. Aborting without applying visual effects.');
+        this.showAudioMissingFeedback();
+        this.isStarting = false;
+        return;
+      }
 
-      // 2. Attempt to play audio FIRST - Subtitles will NOT start if this fails
+      // Early resume of Web Audio context synchronously during user click gesture
+      try {
+        if (!this.audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) this.audioCtx = new AudioContextClass();
+        }
+        if (this.audioCtx && this.audioCtx.state === 'suspended') {
+          this.audioCtx.resume();
+        }
+      } catch (e) {}
+
+      // 2. Strict Audio Playback Verification: Play audio BEFORE applying any visual classes or effects
       try {
         this.audioEl.currentTime = 0;
         const playPromise = this.audioEl.play();
@@ -2127,45 +2388,46 @@ khedr@dev:~$ echo $PASSION
           await playPromise;
         }
       } catch (audioErr) {
-        console.warn('Audio playback failed or was blocked by browser:', audioErr);
-        this.isStarting = false;
-        // DO NOT START SUBTITLES OR CINEMATIC UI IF AUDIO DID NOT PLAY
-        return;
-      }
-
-      // 3. Confirm audio is actually playing
-      if (this.audioEl.paused) {
-        console.warn('Audio is paused; aborting cinematic activation.');
+        console.warn('Audio playback failed or audio source is missing:', audioErr);
+        this.audioMissing = true;
+        this.showAudioMissingFeedback();
+        this.stopCinematicMode();
         this.isStarting = false;
         return;
       }
 
-      // NOW, and only now, audio is actively producing sound:
+      // If audio is paused or has invalid duration, audio is missing/failed: do NOT apply effects
+      if (this.audioEl.paused || isNaN(this.audioEl.duration) || this.audioEl.duration === 0) {
+        console.warn('Audio is not playing or duration is invalid. Aborting cinematic activation.');
+        this.audioMissing = true;
+        this.showAudioMissingFeedback();
+        this.stopCinematicMode();
+        this.isStarting = false;
+        return;
+      }
+
+      // ONLY AFTER audio is 100% playing, apply cinematic state & visual effects:
       this.isPlaying = true;
       this.isStarting = false;
 
-      // 4. Activate Cinematic UI and transition hero
+      // Reset state & impact cues
+      this.currentSubtitleIndex = -1;
+      this.impactCues.forEach(c => { c.triggered = false; });
+      this.impactState = { active: false, startTime: 0, maxIntensity: 0, intensity: 0, progress: 0, duration: 0.8 };
+      if (this.kineticWrapper) this.kineticWrapper.innerHTML = '';
+
+      // 3. Transition UI
       this.heroSection?.classList.add('mode-cinematic');
       this.auroraContainer?.classList.add('is-active');
       this.playBtn?.classList.add('is-hidden');
       if (this.statusBadge) this.statusBadge.textContent = 'Playing...';
 
-      // 5. Connect Web Audio API Analyser (safe against CORS/file:// restrictions)
+      // 4. Connect Web Audio API Analyser
       try {
-        if (!this.audioCtx) {
-          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-          if (AudioContextClass) {
-            this.audioCtx = new AudioContextClass();
-          }
-        }
-        if (this.audioCtx && this.audioCtx.state === 'suspended') {
-          await this.audioCtx.resume();
-        }
-
         if (this.audioCtx && !this.analyser) {
           this.analyser = this.audioCtx.createAnalyser();
           this.analyser.fftSize = 256;
-          this.analyser.smoothingTimeConstant = 0.8;
+          this.analyser.smoothingTimeConstant = 0.5; // Fast transient response to voice
           this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
 
           if (!this.sourceNode && this.audioEl) {
@@ -2175,21 +2437,22 @@ khedr@dev:~$ echo $PASSION
           }
         }
       } catch (audioCtxErr) {
-        console.warn('Web Audio API analyzer fallback (playback continues normally):', audioCtxErr);
+        console.warn('Web Audio API analyzer fallback:', audioCtxErr);
       }
 
-      // 6. Initialize SoftAurora WebGL loop (which drives 60fps subtitle sync)
+      // 5. Initialize PredictiveArc WebGL Shader Loop
       try {
         if (this.initWebGL()) {
+          this.lastTime = performance.now();
           if (!this.rafId) {
             this.rafId = requestAnimationFrame((t) => this.renderLoop(t));
           }
         }
       } catch (glErr) {
-        console.warn('WebGL aurora error:', glErr);
+        console.warn('PredictiveArc WebGL error:', glErr);
       }
 
-      // 7. Initial subtitle check immediately now that audio is playing
+      // 6. Initial Frame Evaluation
       this.handleTimeUpdate();
     }
 
@@ -2206,12 +2469,17 @@ khedr@dev:~$ echo $PASSION
         this.swapTimeout = null;
       }
 
+      const introEl = document.getElementById('heroIntro');
+      if (introEl) introEl.classList.remove('is-shaking');
+
       this.heroSection?.classList.remove('mode-cinematic');
       this.auroraContainer?.classList.remove('is-active');
       this.playBtn?.classList.remove('is-hidden');
       if (this.statusBadge) this.statusBadge.textContent = 'Available';
 
       this.currentSubtitleIndex = -1;
+      this.impactCues.forEach(c => { c.triggered = false; });
+      this.impactState = { active: false, intensity: 0, progress: 0 };
       if (this.kineticWrapper) this.kineticWrapper.innerHTML = '';
 
       if (this.audioEl) {
@@ -2223,6 +2491,19 @@ khedr@dev:~$ echo $PASSION
     }
 
     initEvents() {
+      // Monitor source load errors immediately
+      const audioSources = this.audioEl.querySelectorAll('source');
+      let failedSources = 0;
+      audioSources.forEach(source => {
+        source.addEventListener('error', () => {
+          failedSources++;
+          if (failedSources >= audioSources.length || (this.audioEl && this.audioEl.networkState === HTMLMediaElement.NETWORK_NO_SOURCE)) {
+            this.audioMissing = true;
+            console.warn('Audio source failed to load; audio marked missing.');
+          }
+        });
+      });
+
       const handleTrigger = (e) => {
         if (e) {
           e.preventDefault();
@@ -2234,7 +2515,6 @@ khedr@dev:~$ echo $PASSION
       this.playBtn.addEventListener('click', handleTrigger);
       this.playBtn.addEventListener('touchend', handleTrigger);
 
-      // Listen for audio events
       this.audioEl.addEventListener('timeupdate', () => this.handleTimeUpdate());
       this.audioEl.addEventListener('ended', () => this.stopCinematicMode());
       this.audioEl.addEventListener('pause', () => {
@@ -2244,7 +2524,9 @@ khedr@dev:~$ echo $PASSION
       });
       this.audioEl.addEventListener('error', (e) => {
         console.warn('Audio element error event:', e);
+        this.audioMissing = true;
         this.stopCinematicMode();
+        this.showAudioMissingFeedback();
       });
     }
   }

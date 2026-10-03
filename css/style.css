@@ -3009,7 +3009,7 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   z-index: 1;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
 }
 
@@ -3032,10 +3032,23 @@ h1, h2, h3, h4, h5, h6, .hero-title {
 }
 
 .hero-section.mode-cinematic .hero-intro {
-  background: rgba(10, 14, 26, 0.62) !important;
-  border-color: rgba(99, 102, 241, 0.45) !important;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 45px rgba(99, 102, 241, 0.3) !important;
+  background: rgba(8, 8, 12, 0.76) !important;
+  border-color: rgba(244, 63, 94, 0.4) !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 50px rgba(244, 63, 94, 0.25) !important;
   transition: background 0.8s ease, border-color 0.8s ease, box-shadow 0.8s ease;
+}
+
+/* Screen Shake for the Apex Blast at 7.00s */
+.hero-intro.is-shaking {
+  animation: arcScreenShake 0.42s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes arcScreenShake {
+  10%, 90% { transform: translate3d(-4px, 2px, 0) scale(1.015); }
+  20%, 80% { transform: translate3d(6px, -5px, 0) scale(1.025); }
+  30%, 50%, 70% { transform: translate3d(-7px, 6px, 0) scale(1.03); }
+  40%, 60% { transform: translate3d(7px, -4px, 0) scale(1.015); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
 }
 
 /* Hero static content vs kinetic subtitles */
@@ -3077,11 +3090,11 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.16em;
-  color: #38bdf8;
+  color: #fb7185;
   margin-bottom: 1.5rem;
   text-transform: uppercase;
-  background: rgba(56, 189, 248, 0.1);
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  background: rgba(244, 63, 94, 0.12);
+  border: 1px solid rgba(244, 63, 94, 0.3);
   padding: 0.35rem 0.85rem;
   border-radius: 999px;
   backdrop-filter: blur(8px);
@@ -3091,38 +3104,165 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #38bdf8;
-  box-shadow: 0 0 10px #38bdf8;
+  background: #f43f5e;
+  box-shadow: 0 0 10px #f43f5e;
   animation: pulseSoundDot 1.1s infinite alternate ease-in-out;
 }
 
 @keyframes pulseSoundDot {
   from { transform: scale(0.75); opacity: 0.45; }
-  to { transform: scale(1.35); opacity: 1; box-shadow: 0 0 14px #38bdf8; }
+  to { transform: scale(1.35); opacity: 1; box-shadow: 0 0 14px #f43f5e; }
 }
 
 .kinetic-text-wrapper {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 0.45em 0.55em;
-  min-height: 120px;
+  align-items: baseline;
+  align-content: center;
+  row-gap: 0.35em;
+  column-gap: 0.45em;
+  min-height: 130px;
   width: 100%;
 }
 
 .kinetic-word {
   display: inline-block;
+  margin-right: 0.36em !important;
+  margin-bottom: 0.15em;
   font-family: var(--font-sans, inherit);
-  font-size: clamp(2rem, 3.6vw, 3.2rem);
+  font-size: clamp(1.75rem, 2.8vw, 2.55rem);
   font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.025em;
+  line-height: 1.25;
+  letter-spacing: 0.015em;
   background: linear-gradient(135deg, #ffffff 25%, #cbd5e1 65%, #94a3b8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
   will-change: transform, opacity, filter;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease, filter 0.35s ease;
+}
+
+/* Apex Subtitle Fiery Drop-Shadow & Scale Surge at 7.00s */
+.kinetic-word.is-apex {
+  background: linear-gradient(135deg, #ffffff 15%, #ffa0a0 55%, #ff2244 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  filter: drop-shadow(0 0 24px rgba(255, 34, 68, 0.95)) drop-shadow(0 0 45px rgba(255, 0, 40, 0.65)) !important;
+  transform: scale(1.04) !important;
+}
+
+/* ==========================================================================
+   ProfileCard (PC) Cinematic Fire Effect Synchronization
+   ========================================================================== */
+
+/* 1. Fire Aura behind the card: Expands, glows molten red/amber, and breathes */
+.hero-section.mode-cinematic .pc-behind {
+  opacity: 1 !important;
+  background: radial-gradient(
+    circle at var(--pointer-x, 50%) var(--pointer-y, 50%),
+    rgba(244, 63, 94, 0.85) 0%,
+    rgba(255, 112, 20, 0.6) 35%,
+    rgba(255, 214, 64, 0.3) 60%,
+    transparent 80%
+  ) !important;
+  filter: blur(48px) saturate(1.5) !important;
+  animation: pcFireAuraBreath 3.2s infinite ease-in-out alternate !important;
+  transition: opacity 0.6s ease, filter 0.6s ease;
+}
+
+@keyframes pcFireAuraBreath {
+  0% { transform: scale(0.98); opacity: 0.85; filter: blur(40px) saturate(1.4); }
+  100% { transform: scale(1.08); opacity: 1; filter: blur(54px) saturate(1.8); }
+}
+
+/* 2. PC Card Shell & Body: Molten Crimson & Amber Flame Glow */
+.hero-section.mode-cinematic .pc-card {
+  border-color: rgba(255, 112, 20, 0.65) !important;
+  box-shadow: 
+    0 0 35px rgba(244, 63, 94, 0.45),
+    0 0 70px rgba(255, 112, 20, 0.25),
+    0 25px 60px rgba(0, 0, 0, 0.85),
+    inset 0 0 30px rgba(244, 63, 94, 0.2) !important;
+  transition: border-color 0.6s ease, box-shadow 0.6s ease, transform 0.6s ease;
+}
+
+/* 3. Avatar Portrait: Cinematic incandescent flame lighting & contrast */
+.hero-section.mode-cinematic .pc-avatar-content .avatar {
+  filter: contrast(1.15) saturate(1.22) brightness(1.02) drop-shadow(0 0 25px rgba(244, 63, 94, 0.3)) !important;
+  transition: filter 0.8s ease;
+}
+
+/* 4. Flame Glare & Heat Reflection on Card Surface */
+.hero-section.mode-cinematic .pc-glare {
+  background-image: radial-gradient(
+    farthest-corner circle at var(--pointer-x, 50%) var(--pointer-y, 35%),
+    rgba(255, 220, 100, 0.38) 0%,
+    rgba(244, 63, 94, 0.28) 45%,
+    rgba(12, 6, 10, 0.65) 90%
+  ) !important;
+  mix-blend-mode: color-dodge !important;
+  filter: brightness(1.15) contrast(1.25) !important;
+  transition: background-image 0.6s ease, filter 0.6s ease;
+}
+
+/* 5. Frosted Glass Banner: Dark Obsidian with Burning Ember Trim */
+.hero-section.mode-cinematic .pc-user-info {
+  background: rgba(14, 8, 12, 0.84) !important;
+  border-color: rgba(255, 112, 20, 0.55) !important;
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.7),
+    0 0 24px rgba(244, 63, 94, 0.28),
+    inset 0 1px 1px rgba(255, 214, 64, 0.3) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  transition: all 0.5s ease;
+}
+
+/* Mini Avatar Glowing Ember Ring */
+.hero-section.mode-cinematic .pc-mini-avatar {
+  border-color: rgba(244, 63, 94, 0.8) !important;
+  box-shadow: 0 0 12px rgba(244, 63, 94, 0.65) !important;
+  transition: all 0.5s ease;
+}
+
+/* User Handle with Radiant Flame Gradient */
+.hero-section.mode-cinematic .pc-handle {
+  background: linear-gradient(135deg, #ffffff 10%, #ffa585 50%, #f43f5e 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  filter: drop-shadow(0 0 12px rgba(244, 63, 94, 0.6)) !important;
+  transition: all 0.5s ease;
+}
+
+/* Active Audio Playing Flame Status Badge */
+.hero-section.mode-cinematic .pc-status {
+  background: rgba(244, 63, 94, 0.18) !important;
+  border-color: rgba(255, 112, 20, 0.5) !important;
+  color: #ff9070 !important;
+  text-shadow: 0 0 10px rgba(255, 112, 20, 0.65) !important;
+  transition: all 0.5s ease;
+}
+
+.hero-section.mode-cinematic .pc-status::before {
+  background: #ff4520 !important;
+  box-shadow: 0 0 10px #ff4520, 0 0 18px #ff9900 !important;
+  animation: pcStatusFirePulse 0.9s infinite alternate ease-in-out !important;
+}
+
+@keyframes pcStatusFirePulse {
+  from { transform: scale(0.8); opacity: 0.7; box-shadow: 0 0 8px #ff4520; }
+  to { transform: scale(1.35); opacity: 1; box-shadow: 0 0 16px #ff4520, 0 0 24px #ffaa00; }
+}
+
+/* 6. Apex Impact Flare: At 7.00s apex drop, PC card receives incandescent white-hot flash */
+.hero-intro.is-shaking .pc-card {
+  border-color: #ffffff !important;
+  box-shadow: 
+    0 0 70px rgba(255, 255, 255, 0.8),
+    0 0 120px rgba(255, 112, 20, 0.6),
+    0 25px 60px rgba(0, 0, 0, 0.9),
+    inset 0 0 50px rgba(255, 214, 64, 0.5) !important;
+  transition: box-shadow 0.1s ease, border-color 0.1s ease !important;
 }
 
 /* ==========================================================================
@@ -3200,6 +3340,35 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   opacity: 0 !important;
   pointer-events: none !important;
   transform: translate(-50%, -50%) scale(0.65) !important;
+}
+
+/* Audio Missing / Playback Failure State */
+.pc-play-btn-overlay.pc-play-btn-error {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  border-color: rgba(239, 68, 68, 0.85) !important;
+  box-shadow: 0 0 28px rgba(239, 68, 68, 0.45), 0 12px 30px rgba(0, 0, 0, 0.6) !important;
+  animation: pcErrorShake 0.48s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+.pc-play-btn-overlay.pc-play-btn-error .pc-play-label {
+  color: #f87171 !important;
+}
+
+.pc-play-btn-overlay.pc-play-btn-error .pc-play-btn-inner {
+  background: rgba(239, 68, 68, 0.25) !important;
+  border-color: rgba(239, 68, 68, 0.6) !important;
+}
+
+.pc-play-btn-overlay.pc-play-btn-error .pc-play-icon {
+  fill: #f87171 !important;
+}
+
+@keyframes pcErrorShake {
+  10%, 90% { transform: translate(-50%, -50%) translateZ(32px) translate3d(-4px, 0, 0); }
+  20%, 80% { transform: translate(-50%, -50%) translateZ(32px) translate3d(4px, 0, 0); }
+  30%, 50%, 70% { transform: translate(-50%, -50%) translateZ(32px) translate3d(-5px, 0, 0); }
+  40%, 60% { transform: translate(-50%, -50%) translateZ(32px) translate3d(5px, 0, 0); }
 }
 
 @media (hover: none) {
