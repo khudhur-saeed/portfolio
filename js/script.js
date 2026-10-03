@@ -1794,6 +1794,8 @@ khedr@dev:~$ echo $PASSION
       ];
 
       this.isPlaying = false;
+      this.isStarting = false;
+      this.swapTimeout = null;
       this.currentSubtitleIndex = -1;
       this.audioCtx = null;
       this.analyser = null;
@@ -1985,7 +1987,10 @@ khedr@dev:~$ echo $PASSION
       if (!this.isPlaying) return;
       this.rafId = requestAnimationFrame((t) => this.renderLoop(t));
 
-      // 1. Analyze Audio in real-time
+      // 1. Frame-accurate 60fps Subtitle Sync: perfectly aligned with audioEl.currentTime
+      this.handleTimeUpdate();
+
+      // 2. Analyze Audio in real-time
       if (this.analyser && this.dataArray) {
         try {
           this.analyser.getByteFrequencyData(this.dataArray);
@@ -2012,7 +2017,7 @@ khedr@dev:~$ echo $PASSION
         }
       }
 
-      // 2. Smoothly Lerp Targets based on Audio
+      // 3. Smoothly Lerp Targets based on Audio
       const targetSpeed = this.baseSpeed + this.audioValues.volume * 2.2 + this.audioValues.bass * 0.9;
       const targetAmp = this.baseNoiseAmp + this.audioValues.bass * 0.75 + this.audioValues.mid * 0.35;
       const targetGlow = this.audioValues.volume * 1.25 + this.audioValues.bass * 0.7;
@@ -2021,7 +2026,7 @@ khedr@dev:~$ echo $PASSION
       this.curNoiseAmp += (targetAmp - this.curNoiseAmp) * 0.12;
       this.curGlow += (targetGlow - this.curGlow) * 0.15;
 
-      // 3. Draw WebGL Frame
+      // 4. Draw WebGL Frame
       const gl = this.gl;
       if (gl && this.program) {
         gl.useProgram(this.program);
@@ -2041,14 +2046,18 @@ khedr@dev:~$ echo $PASSION
       if (oldWords.length > 0 && !this.reduceMotion) {
         oldWords.forEach((wordEl) => {
           wordEl.style.opacity = '0';
-          wordEl.style.filter = 'blur(12px)';
-          wordEl.style.transform = 'translateX(-20px) scale(0.95)';
+          wordEl.style.filter = 'blur(10px)';
+          wordEl.style.transform = 'translateX(-15px) scale(0.96)';
+          wordEl.style.transition = 'opacity 0.1s ease, filter 0.1s ease, transform 0.1s ease';
         });
       }
 
-      setTimeout(() => {
+      const swapDelay = (oldWords.length > 0 && !this.reduceMotion) ? 75 : 0;
+
+      clearTimeout(this.swapTimeout);
+      this.swapTimeout = setTimeout(() => {
         container.innerHTML = '';
-        if (!text) return;
+        if (!text || !this.isPlaying || (this.audioEl && this.audioEl.paused)) return;
 
         const words = text.trim().split(/\s+/);
         words.forEach((word, idx) => {
@@ -2060,24 +2069,32 @@ khedr@dev:~$ echo $PASSION
             span.style.opacity = '1';
           } else {
             span.style.opacity = '0';
-            span.style.filter = 'blur(14px)';
-            span.style.transform = 'translateX(28px) scale(0.95)';
+            span.style.filter = 'blur(12px)';
+            span.style.transform = 'translateX(20px) scale(0.96)';
 
             setTimeout(() => {
+              if (!this.isPlaying || (this.audioEl && this.audioEl.paused)) return;
               span.style.opacity = '1';
               span.style.filter = 'blur(0px)';
               span.style.transform = 'translateX(0) scale(1)';
-            }, idx * 65 + 25);
+            }, idx * 45 + 15);
           }
 
           container.appendChild(span);
         });
-      }, oldWords.length > 0 && !this.reduceMotion ? 220 : 0);
+      }, swapDelay);
     }
 
     handleTimeUpdate() {
-      if (!this.isPlaying || !this.audioEl) return;
+      // Guard: strictly do nothing if audio is paused or not playing
+      if (!this.isPlaying || !this.audioEl || this.audioEl.paused) return;
       const curTime = this.audioEl.currentTime;
+
+      // Check if audio finished the speech section (12.75s)
+      if (curTime >= this.subtitles[this.subtitles.length - 1].end) {
+        this.stopCinematicMode();
+        return;
+      }
 
       let activeIndex = -1;
       for (let i = 0; i < this.subtitles.length; i++) {
@@ -2088,10 +2105,6 @@ khedr@dev:~$ echo $PASSION
         }
       }
 
-      if (activeIndex === -1 && curTime >= this.subtitles[this.subtitles.length - 1].start) {
-        activeIndex = this.subtitles.length - 1;
-      }
-
       if (activeIndex !== -1 && activeIndex !== this.currentSubtitleIndex) {
         this.currentSubtitleIndex = activeIndex;
         this.renderKineticText(this.subtitles[activeIndex].text);
@@ -2099,31 +2112,45 @@ khedr@dev:~$ echo $PASSION
     }
 
     async startCinematicMode() {
-      if (this.isPlaying) return;
-      this.isPlaying = true;
-      this.currentSubtitleIndex = -1;
+      if (this.isPlaying || this.isStarting || !this.audioEl) return;
+      this.isStarting = true;
 
-      // 1. Immediately activate Cinematic UI and start subtitles
+      // 1. Reset any previous subtitle text or state
+      this.currentSubtitleIndex = -1;
+      if (this.kineticWrapper) this.kineticWrapper.innerHTML = '';
+
+      // 2. Attempt to play audio FIRST - Subtitles will NOT start if this fails
+      try {
+        this.audioEl.currentTime = 0;
+        const playPromise = this.audioEl.play();
+        if (playPromise !== undefined) {
+          await playPromise;
+        }
+      } catch (audioErr) {
+        console.warn('Audio playback failed or was blocked by browser:', audioErr);
+        this.isStarting = false;
+        // DO NOT START SUBTITLES OR CINEMATIC UI IF AUDIO DID NOT PLAY
+        return;
+      }
+
+      // 3. Confirm audio is actually playing
+      if (this.audioEl.paused) {
+        console.warn('Audio is paused; aborting cinematic activation.');
+        this.isStarting = false;
+        return;
+      }
+
+      // NOW, and only now, audio is actively producing sound:
+      this.isPlaying = true;
+      this.isStarting = false;
+
+      // 4. Activate Cinematic UI and transition hero
       this.heroSection?.classList.add('mode-cinematic');
       this.auroraContainer?.classList.add('is-active');
       this.playBtn?.classList.add('is-hidden');
       if (this.statusBadge) this.statusBadge.textContent = 'Playing...';
-      this.renderKineticText(this.subtitles[0].text);
 
-      // 2. Play Audio (with error tolerance)
-      if (this.audioEl) {
-        try {
-          this.audioEl.currentTime = 0;
-          const playPromise = this.audioEl.play();
-          if (playPromise !== undefined) {
-            await playPromise;
-          }
-        } catch (audioErr) {
-          console.warn('Audio playback info:', audioErr);
-        }
-      }
-
-      // 3. Connect Web Audio API Analyser (safe against CORS/file:// restrictions)
+      // 5. Connect Web Audio API Analyser (safe against CORS/file:// restrictions)
       try {
         if (!this.audioCtx) {
           const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -2151,7 +2178,7 @@ khedr@dev:~$ echo $PASSION
         console.warn('Web Audio API analyzer fallback (playback continues normally):', audioCtxErr);
       }
 
-      // 4. Initialize SoftAurora WebGL loop
+      // 6. Initialize SoftAurora WebGL loop (which drives 60fps subtitle sync)
       try {
         if (this.initWebGL()) {
           if (!this.rafId) {
@@ -2161,13 +2188,22 @@ khedr@dev:~$ echo $PASSION
       } catch (glErr) {
         console.warn('WebGL aurora error:', glErr);
       }
+
+      // 7. Initial subtitle check immediately now that audio is playing
+      this.handleTimeUpdate();
     }
 
     stopCinematicMode() {
       this.isPlaying = false;
+      this.isStarting = false;
+
       if (this.rafId) {
         cancelAnimationFrame(this.rafId);
         this.rafId = null;
+      }
+      if (this.swapTimeout) {
+        clearTimeout(this.swapTimeout);
+        this.swapTimeout = null;
       }
 
       this.heroSection?.classList.remove('mode-cinematic');
@@ -2198,8 +2234,18 @@ khedr@dev:~$ echo $PASSION
       this.playBtn.addEventListener('click', handleTrigger);
       this.playBtn.addEventListener('touchend', handleTrigger);
 
+      // Listen for audio events
       this.audioEl.addEventListener('timeupdate', () => this.handleTimeUpdate());
       this.audioEl.addEventListener('ended', () => this.stopCinematicMode());
+      this.audioEl.addEventListener('pause', () => {
+        if (this.isPlaying && this.audioEl && this.audioEl.currentTime < 12.5) {
+          this.stopCinematicMode();
+        }
+      });
+      this.audioEl.addEventListener('error', (e) => {
+        console.warn('Audio element error event:', e);
+        this.stopCinematicMode();
+      });
     }
   }
 

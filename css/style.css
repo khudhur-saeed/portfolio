@@ -3133,27 +3133,60 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   pointer-events: auto !important;
 }
 
+/* ==========================================================================
+   Play Button Overlay: Unified Frosted Pill Button (Matches Site Style)
+   ========================================================================== */
+
 .pc-play-btn-overlay {
   position: absolute !important;
   top: 50% !important;
   left: 50% !important;
-  transform: translate(-50%, -50%) translateZ(30px) !important;
+  transform: translate(-50%, -50%) translateZ(32px) scale(0.92) !important;
   z-index: 30 !important;
-  display: flex !important;
-  flex-direction: column !important;
+  display: inline-flex !important;
+  flex-direction: row !important;
   align-items: center !important;
   justify-content: center !important;
   grid-area: auto !important;
-  gap: 8px !important;
-  background: transparent !important;
-  border: none !important;
+  gap: 12px !important;
+  padding: 10px 22px 10px 12px !important;
+  border-radius: 9999px !important;
+  background: rgba(18, 18, 20, 0.82) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.52), inset 0 1px 1px rgba(255, 255, 255, 0.14) !important;
   cursor: pointer !important;
-  pointer-events: auto !important;
   outline: none !important;
-  padding: 0 !important;
   width: auto !important;
   height: auto !important;
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
+              opacity 0.35s ease, 
+              background 0.3s ease, 
+              border-color 0.3s ease, 
+              box-shadow 0.35s ease !important;
+}
+
+/* Reveal smoothly when hovering over the Profile Card */
+.pc-card-wrapper:hover .pc-play-btn-overlay,
+.pc-card-shell:hover .pc-play-btn-overlay,
+.pc-card:hover .pc-play-btn-overlay,
+.pc-card-wrapper.active .pc-play-btn-overlay,
+.pc-card-shell.active .pc-play-btn-overlay,
+.pc-card.active .pc-play-btn-overlay {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: translate(-50%, -50%) translateZ(32px) scale(1) !important;
+}
+
+/* Interactive Button Hover State: Elevated specular glow matching primary buttons */
+.pc-play-btn-overlay:hover {
+  background: var(--text-highlight) !important;
+  border-color: var(--text-highlight) !important;
+  box-shadow: 0 0 32px rgba(242, 242, 244, 0.35), 0 20px 45px rgba(0, 0, 0, 0.7) !important;
+  transform: translate(-50%, -50%) translateZ(42px) scale(1.06) !important;
 }
 
 .pc-play-btn-overlay * {
@@ -3161,81 +3194,137 @@ h1, h2, h3, h4, h5, h6, .hero-title {
   grid-area: auto !important;
 }
 
-.pc-play-btn-overlay.is-hidden {
+/* Keep strictly hidden when cinematic mode is playing */
+.pc-play-btn-overlay.is-hidden,
+.hero-section.mode-cinematic .pc-play-btn-overlay {
   opacity: 0 !important;
   pointer-events: none !important;
   transform: translate(-50%, -50%) scale(0.65) !important;
 }
 
+@media (hover: none) {
+  .pc-play-btn-overlay {
+    opacity: 0.95 !important;
+    pointer-events: auto !important;
+    transform: translate(-50%, -50%) translateZ(32px) scale(1) !important;
+  }
+}
+
+/* Icon Container: Crisp circular accent chip inside the pill */
 .pc-play-btn-inner {
-  width: 70px !important;
-  height: 70px !important;
+  width: 36px !important;
+  height: 36px !important;
   border-radius: 50% !important;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.08)) !important;
-  backdrop-filter: blur(14px) !important;
-  -webkit-backdrop-filter: blur(14px) !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.55) !important;
-  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.5), 0 0 24px rgba(129, 140, 248, 0.45) !important;
+  background: var(--text-highlight) !important;
+  color: var(--bg-color) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  color: #ffffff !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35) !important;
+  flex-shrink: 0 !important;
   transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .pc-play-btn-overlay:hover .pc-play-btn-inner {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.88), rgba(168, 85, 247, 0.88)) !important;
-  border-color: rgba(255, 255, 255, 0.9) !important;
-  box-shadow: 0 14px 40px rgba(99, 102, 241, 0.7), 0 0 32px rgba(168, 85, 247, 0.55) !important;
-  transform: scale(1.09) !important;
+  background: var(--bg-color) !important;
+  color: var(--text-highlight) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45) !important;
+  transform: scale(1.06) !important;
 }
 
 .pc-play-icon {
-  width: 28px !important;
-  height: 28px !important;
-  margin-left: 3px !important;
-  fill: #ffffff !important;
+  width: 15px !important;
+  height: 15px !important;
+  margin-left: 2px !important;
+  fill: currentColor !important;
   display: block !important;
+  transition: transform 0.25s ease !important;
 }
 
+.pc-play-btn-overlay:hover .pc-play-icon {
+  transform: scale(1.1) !important;
+}
+
+/* Button Label: Sleek Geist Mono typography matching page badges & buttons */
+.pc-play-label {
+  font-family: var(--font-mono) !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: var(--text-highlight) !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  transition: color 0.35s ease !important;
+}
+
+.pc-play-label::before {
+  content: none !important;
+  display: none !important;
+}
+
+.pc-play-btn-overlay:hover .pc-play-label {
+  color: var(--bg-color) !important;
+}
+
+/* Pulse Ring: Ethereal aura hugging the pill perimeter */
 .pc-play-pulse-ring {
   position: absolute !important;
-  top: 0 !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  width: 70px !important;
-  height: 70px !important;
-  border-radius: 50% !important;
-  border: 2px solid rgba(129, 140, 248, 0.7) !important;
-  animation: playPulseAnim 2.4s infinite cubic-bezier(0.215, 0.61, 0.355, 1) !important;
+  inset: -5px !important;
+  border-radius: 9999px !important;
+  border: 1px solid rgba(171, 170, 173, 0.4) !important;
+  animation: playPulseRing 2.6s infinite cubic-bezier(0.215, 0.61, 0.355, 1) !important;
   pointer-events: none !important;
 }
 
-@keyframes playPulseAnim {
+@keyframes playPulseRing {
   0% {
-    transform: translateX(-50%) scale(1);
-    opacity: 0.95;
+    transform: scale(0.98);
+    opacity: 0.85;
   }
   100% {
-    transform: translateX(-50%) scale(1.7);
+    transform: scale(1.14);
     opacity: 0;
   }
 }
 
-.pc-play-label {
-  font-family: var(--font-sans, inherit) !important;
-  font-size: 0.75rem !important;
-  font-weight: 600 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.12em !important;
-  color: #ffffff !important;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85) !important;
-  background: rgba(15, 23, 42, 0.8) !important;
-  padding: 4px 12px !important;
-  border-radius: 999px !important;
-  border: 1px solid rgba(255, 255, 255, 0.18) !important;
-  backdrop-filter: blur(8px) !important;
-  display: block !important;
+/* Light Theme Adaptations */
+[data-theme="light"] .pc-play-btn-overlay {
+  background: rgba(245, 245, 247, 0.88) !important;
+  border-color: var(--border-color) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.9) !important;
+}
+
+[data-theme="light"] .pc-play-btn-inner {
+  background: #121214 !important;
+  color: #f2f2f4 !important;
+}
+
+[data-theme="light"] .pc-play-label {
+  color: #121214 !important;
+}
+
+[data-theme="light"] .pc-play-pulse-ring {
+  border-color: rgba(18, 18, 20, 0.25) !important;
+}
+
+[data-theme="light"] .pc-play-btn-overlay:hover {
+  background: #121214 !important;
+  border-color: #121214 !important;
+  box-shadow: 0 0 25px rgba(18, 18, 20, 0.3), 0 16px 36px rgba(0, 0, 0, 0.25) !important;
+}
+
+[data-theme="light"] .pc-play-btn-overlay:hover .pc-play-btn-inner {
+  background: #f2f2f4 !important;
+  color: #121214 !important;
+}
+
+[data-theme="light"] .pc-play-btn-overlay:hover .pc-play-label {
+  color: #f2f2f4 !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
