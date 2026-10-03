@@ -2380,13 +2380,38 @@ khedr@dev:~$ echo $PASSION
         }
       } catch (e) {}
 
-      // 2. Strict Audio Playback Verification: Play audio BEFORE applying any visual classes or effects
+      // 2. Strict Audio Playback Verification & Seek Synchronization:
       try {
-        this.audioEl.currentTime = 0;
+        // Await seek completion if audio is not already at frame 0 (fixes replay lag)
+        if (Math.abs(this.audioEl.currentTime) > 0.005) {
+          await new Promise((resolve) => {
+            const onSeeked = () => {
+              this.audioEl.removeEventListener('seeked', onSeeked);
+              resolve();
+            };
+            this.audioEl.addEventListener('seeked', onSeeked, { once: true });
+            this.audioEl.currentTime = 0;
+            setTimeout(onSeeked, 150); // Fallback safeguard
+          });
+        } else {
+          this.audioEl.currentTime = 0;
+        }
+
+        // Wait for the audio engine to ACTUALLY emit acoustic sound ('playing' event)
+        const onActualPlaybackStart = new Promise((resolve) => {
+          const onPlaying = () => {
+            this.audioEl.removeEventListener('playing', onPlaying);
+            resolve();
+          };
+          this.audioEl.addEventListener('playing', onPlaying, { once: true });
+          setTimeout(onPlaying, 250); // Fallback safeguard
+        });
+
         const playPromise = this.audioEl.play();
         if (playPromise !== undefined) {
           await playPromise;
         }
+        await onActualPlaybackStart;
       } catch (audioErr) {
         console.warn('Audio playback failed or audio source is missing:', audioErr);
         this.audioMissing = true;
@@ -2481,6 +2506,9 @@ khedr@dev:~$ echo $PASSION
       this.impactCues.forEach(c => { c.triggered = false; });
       this.impactState = { active: false, intensity: 0, progress: 0 };
       if (this.kineticWrapper) this.kineticWrapper.innerHTML = '';
+
+      this.clock = 0;
+      this.audioValues = { volume: 0, bass: 0, mid: 0 };
 
       if (this.audioEl) {
         try {
